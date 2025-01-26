@@ -10,7 +10,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../../src'))
 
-project = 'rhesis'
+project = 'rhesis-sdk'
 copyright = '2024, Engineering Team'
 author = 'Engineering Team'
 release = '0.1.0'
@@ -25,6 +25,7 @@ extensions = [
     'sphinx_autodoc_typehints',
     'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
+    'myst_parser', # TODO: implement link from README.md to index.rst
 ]
 
 templates_path = ['_templates']
