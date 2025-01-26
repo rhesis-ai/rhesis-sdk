@@ -14,10 +14,6 @@ class TestSet(BaseEntity):
     This class provides functionality to interact with test sets, including
     retrieving prompts, loading data in different formats, and downloading test sets.
 
-    Attributes:
-        endpoint (str): The API endpoint for test sets.
-        prompts (list, optional): Cached list of prompts for the test set.
-
     Examples:
         Create and load a test set:
         >>> test_set = TestSet(id='123')
@@ -35,7 +31,10 @@ class TestSet(BaseEntity):
         >>> test_set.download(format='json', path='data/my_test_set.json')
     """
 
+    #: :no-index: The API endpoint for test sets
     endpoint = "test_sets"
+    
+    #: :no-index: Cached list of prompts for the test set
     prompts: Optional[list[Any]] = None
 
     def __init__(self, **fields: Any) -> None:

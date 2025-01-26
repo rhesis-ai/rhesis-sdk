@@ -1,6 +1,6 @@
-.PHONY: all format lint type-check test requirements
+.PHONY: all format lint type-check test requirements docs
 
-all: format lint type-check test requirements
+all: format lint type-check test requirements docs
 
 format:
 	black src tests
@@ -17,3 +17,6 @@ test:
 requirements:
 	poetry export -f requirements.txt --without-hashes > requirements.txt
 	poetry export -f requirements.txt --without-hashes --with dev > requirements-dev.txt
+
+docs:
+	cd docs && make clean && make html

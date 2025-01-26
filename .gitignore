@@ -69,7 +69,16 @@ instance/
 .scrapy
 
 # Sphinx documentation
+docs/build/
 docs/_build/
+docs/source/_autosummary/
+
+# Keep these Sphinx files
+!docs/Makefile
+!docs/make.bat
+!docs/source/
+!docs/source/conf.py
+!docs/source/*.rst
 
 # PyBuilder
 .pybuilder/
