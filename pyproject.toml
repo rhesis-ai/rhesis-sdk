@@ -1,0 +1,67 @@
+[tool.poetry]
+name = "rhesis"
+version = "0.1.0"
+description = "SDK for testing LLM applications"
+authors = ["Engineering Team <engineering@rhesis.ai>", "Harry Cruz <harry@rhesis.ai>", "Nicolai Bohn <nicolai@rhesis.ai>"]
+license = "MIT"
+packages = [
+    { include = "rhesis", from = "src" },
+    { include = "rhesis/py.typed", from = "src" }
+]
+include = ["src/rhesis/py.typed"]
+
+[tool.poetry.group.dev.dependencies]
+types-requests = "^2.32.0"
+pandas-stubs = "^2.2.0.240218"
+pytest = "^8.3.4"
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.mypy_cache
+    | \.pytest_cache
+    | \.venv
+    | build
+    | dist
+    | docs
+)/
+'''
+
+[tool.poetry.dependencies]
+python = ">=3.9"
+ipykernel = "^6.29.5"
+pandas = "^2.2.3"
+python-dotenv = "^1.0.1"
+requests = "^2.31.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.extras]
+examples = ["jupyter", "matplotlib", "pandas"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+
+# Add your package name here (without hyphens)
+packages = ["rhesis"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
