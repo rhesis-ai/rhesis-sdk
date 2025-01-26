@@ -20,6 +20,11 @@ curl -sSL https://install.python-poetry.org | python3 -
 poetry install --with dev
 ```
 
+Optionally, you can install the development tools and documentation:
+```bash
+poetry install --with dev,docs
+```
+
 ## Development Workflow
 
 1. Create a new branch for your feature:
