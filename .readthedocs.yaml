@@ -11,7 +11,7 @@ build:
       # Configure Poetry to avoid creating its own virtual environment
       - poetry config virtualenvs.create false
       # Install Sphinx extensions directly to ensure they're available
-      - pip install sphinx-autodoc-typehints sphinx-rtd-theme
+      - pip install sphinx-autodoc-typehints sphinx-rtd-theme myst-parser
     post_install:
       # Install project dependencies with both dev and docs groups
       - poetry install --with dev,docs
