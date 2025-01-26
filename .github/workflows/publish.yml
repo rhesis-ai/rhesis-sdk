@@ -1,8 +1,10 @@
 name: Publish to PyPI
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*'  # Trigger on any tag that starts with 'v'
+  workflow_dispatch:  # Add this to enable manual triggers
 
 jobs:
   deploy:
