@@ -1,14 +1,31 @@
 [tool.poetry]
-name = "rhesis"
+name = "rhesis-sdk"
 version = "0.1.0"
-description = "SDK for testing LLM applications"
+description = "SDK for testing and validating LLM applications"
 authors = ["Engineering Team <engineering@rhesis.ai>", "Harry Cruz <harry@rhesis.ai>", "Nicolai Bohn <nicolai@rhesis.ai>"]
 license = "MIT"
+readme = "README.md"
+homepage = "https://rhesis.ai"
+repository = "https://github.com/rhesis-ai/rhesis-sdk"
+documentation = "https://rhesis-sdk.readthedocs.io"
+keywords = ["llm", "testing", "ai", "machine-learning"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
 packages = [
     { include = "rhesis", from = "src" },
     { include = "rhesis/py.typed", from = "src" }
 ]
 include = ["src/rhesis/py.typed"]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/rhesis-ai/rhesis-sdk/issues"
 
 [tool.poetry.group.dev.dependencies]
 types-requests = "^2.32.0"
