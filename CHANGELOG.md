@@ -12,4 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic documentation and examples
 - Basic unit tests and integration tests
 
+## [0.1.1] - 2025-02-17
+
+### Added
+- Added support for Parquet files
+- Added more entities and functionality
+
 [0.1.0]: https://github.com/username/repository/releases/tag/v0.1.0
+[0.1.1]: https://github.com/username/repository/releases/tag/v0.1.1
