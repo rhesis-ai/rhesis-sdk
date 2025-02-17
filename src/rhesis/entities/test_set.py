@@ -33,7 +33,7 @@ class TestSet(BaseEntity):
 
     #: :no-index: The API endpoint for test sets
     endpoint = "test_sets"
-    
+
     #: :no-index: Cached list of prompts for the test set
     prompts: Optional[list[Any]] = None
 
@@ -77,15 +77,17 @@ class TestSet(BaseEntity):
 
         Args:
             format (str, optional): The desired output format.
-                Options are "pandas" or "dict". Defaults to "pandas".
+                Options are "pandas", "parquet", or "dict". Defaults to "pandas".
 
         Returns:
             Union[pd.DataFrame, list[Any]]: The prompts in the specified format.
                 Returns a pandas DataFrame if format="pandas",
+                writes to parquet file if format="parquet",
                 or a list of dictionaries if format="dict".
 
         Raises:
             ValueError: If an invalid format is specified.
+            ImportError: If pyarrow is not installed when using parquet format.
         """
         self.fetch()
         prompts = self.get_prompts()
@@ -95,6 +97,18 @@ class TestSet(BaseEntity):
 
         if format == "pandas":
             return pd.DataFrame(self.prompts)
+        elif format == "parquet":
+            try:
+                import pyarrow  # noqa: F401
+            except ImportError:
+                raise ImportError(
+                    "pyarrow is required for parquet support. "
+                    "Install it with: pip install pyarrow"
+                )
+            df = pd.DataFrame(self.prompts)
+            file_path = f"test_set_{self.fields['id']}.parquet"
+            df.to_parquet(file_path)
+            return df
         elif format == "dict":
             return self.prompts
         else:
