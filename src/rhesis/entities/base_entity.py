@@ -3,28 +3,28 @@ import requests
 from typing import Optional, Dict, Any, Callable, TypeVar, cast, Type
 from rhesis.client import Client
 from datetime import datetime
+import logging
 
 T = TypeVar("T")
 
+logger = logging.getLogger(__name__)
+
 
 def handle_http_errors(func: Callable[..., T]) -> Callable[..., Optional[T]]:
-    """Decorator to handle HTTP errors in API requests.
-
-    Args:
-        func: The function to wrap.
-
-    Returns:
-        wrapper: The wrapped function that handles HTTP errors.
-    """
-
+    """Decorator to handle HTTP errors in API requests."""
     @functools.wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Optional[T]:
+    def wrapper(self_or_cls, *args: Any, **kwargs: Any) -> Optional[T]:
         try:
-            return func(*args, **kwargs)
+            return func(self_or_cls, *args, **kwargs)
         except requests.exceptions.HTTPError as e:
-            print(f"HTTP error occurred: {e}")
+            logger.error(f"HTTP error occurred: {e}")
+            logger.error(f"Response content: {e.response.content.decode()}")
+            logger.error(f"Request URL: {e.response.request.url}")
+            logger.error(f"Request method: {e.response.request.method}")
+            logger.error(f"Request headers: {e.response.request.headers}")
+            if e.response.request.body:
+                logger.error(f"Request body: {e.response.request.body.decode()}")
             return None
-
     return wrapper
 
 
@@ -39,7 +39,8 @@ class BaseEntity:
         headers (Dict[str, str]): HTTP headers for API requests.
     """
 
-    endpoint: str = ""
+    endpoint: str
+    fields: Dict[str, Any]
 
     def __init__(self, **fields: Any) -> None:
         """Initialize the entity with given fields.
@@ -47,69 +48,61 @@ class BaseEntity:
         Args:
             **fields: Arbitrary keyword arguments representing entity fields.
         """
-        self.client = Client()
         self.fields = fields
+        self.client = Client()
         self.headers = {
             "Authorization": f"Bearer {self.client.api_key}",
             "Content-Type": "application/json",
         }
 
-    @classmethod
-    def exists(cls, record_id: str) -> bool:
-        """Check if a record exists in the API.
-
-        Args:
-            record_id (str): The ID of the record to check.
-
-        Returns:
-            bool: True if the record exists, False otherwise.
-        """
-        client = Client()
-        headers = {
-            "Authorization": f"Bearer {client.api_key}",
-            "Content-Type": "application/json",
-        }
-        response = requests.get(
-            client.get_url(f"{cls.endpoint}/{record_id}"), headers=headers
-        )
-        return response.status_code == 200
+    @handle_http_errors
+    def save(self) -> Optional[Dict[str, Any]]:
+        """Save the entity to the database."""
+        try:
+            # Use all fields except 'id' for the request body
+            data = {k: v for k, v in self.fields.items() if k != 'id'}
+            
+            if "id" in self.fields:
+                # Update existing entity
+                url = f"{self.client.get_url(self.endpoint)}/{self.fields['id']}/"
+                try:
+                    response = requests.put(
+                        url,
+                        json=data,
+                        headers=self.headers,
+                    )
+                    if response.status_code == 200:
+                        return response.json()
+                    response.raise_for_status()
+                except requests.exceptions.RequestException:
+                    raise
+            else:
+                # Create new entity
+                url = f"{self.client.get_url(self.endpoint)}/"
+                response = requests.post(
+                    url,
+                    json=data,
+                    headers=self.headers,
+                )
+                if response.status_code == 200:
+                    return response.json()
+                response.raise_for_status()
+            return None
+        except requests.exceptions.HTTPError:
+            return None
 
     @handle_http_errors
-    def save(self) -> Dict[str, Any]:
-        """Save the current entity to the API.
-
-        If the entity has an ID, updates the existing record.
-        Otherwise, creates a new record.
-
-        Returns:
-            Dict[str, Any]: The saved record data from the API response.
-        """
-        if "id" in self.fields:
-            response = requests.put(
-                self.client.get_url(f"{self.endpoint}/{self.fields['id']}"),
-                json=self.fields,
+    def delete(self, record_id: str) -> bool:
+        """Delete the entity from the database."""
+        try:
+            url = f"{self.client.get_url(self.endpoint)}/{record_id}/"
+            response = requests.delete(
+                url,
                 headers=self.headers,
             )
-        else:
-            response = requests.post(
-                self.client.get_url(self.endpoint),
-                json=self.fields,
-                headers=self.headers,
-            )
-        response.raise_for_status()
-        return cast(Dict[str, Any], response.json())
-
-    @handle_http_errors
-    def delete(self, record_id: str) -> None:
-        """Delete a record from the API.
-
-        Args:
-            record_id (str): The ID of the record to delete.
-        """
-        response = requests.delete(
-            self.client.get_url(f"{self.endpoint}/{record_id}"), headers=self.headers
-        )
-        response.raise_for_status()
+            return response.status_code in [200, 204]
+        except requests.exceptions.HTTPError:
+            return False
 
     @handle_http_errors
     def fetch(self) -> None:
@@ -131,34 +124,73 @@ class BaseEntity:
         return self.fields
 
     @classmethod
-    def all(cls, **kwargs: Any) -> list[Any]:
+    @handle_http_errors
+    def exists(cls, record_id: str) -> bool:
+        """Check if an entity exists."""
+        client = Client()
+        headers = {
+            "Authorization": f"Bearer {client.api_key}",
+            "Content-Type": "application/json",
+        }
+        url = f"{client.get_url(cls.endpoint)}/{record_id}/"
+        logger.debug(f"GET request to {url} for exists check")
+        response = requests.get(
+            url,
+            headers=headers,
+        )
+        return response.status_code == 200
+
+    @classmethod
+    @handle_http_errors
+    def all(cls, **kwargs: Any) -> Optional[list[Any]]:
         """Retrieve all records from the API."""
         client = Client()
         headers = {
             "Authorization": f"Bearer {client.api_key}",
             "Content-Type": "application/json",
         }
-        response = requests.get(
-            client.get_url(cls.endpoint), params=kwargs, headers=headers
-        )
-        response.raise_for_status()
-        return cast(list[Any], response.json())
+        url = f"{client.get_url(cls.endpoint)}/"
+        
+        try:
+            response = requests.get(
+                url,
+                params=kwargs,
+                headers=headers,
+            )
+            if response.status_code == 200:
+                result = response.json()
+                if not isinstance(result, list):
+                    result = [result] if result else []
+                return cast(list[Any], result)
+            response.raise_for_status()
+        except requests.exceptions.RequestException:
+            raise
+        
+        return None
 
-    @classmethod
+    @handle_http_errors
     def first(cls, **kwargs: Any) -> Optional[Dict[str, Any]]:
         """Retrieve the first record matching the query parameters."""
         records = cls.all(**kwargs)
         return records[0] if records else None
 
     @classmethod
-    def from_id(
-        cls: Type["BaseEntity"], record_id: str, fetch: bool = True
-    ) -> "BaseEntity":
+    @handle_http_errors
+    def from_id(cls, record_id: str) -> Optional["BaseEntity"]:
         """Create an entity instance from a record ID."""
-        instance = cls(**{"id": record_id})
-        if fetch:
-            instance.fetch()
-        return instance
+        client = Client()
+        headers = {
+            "Authorization": f"Bearer {client.api_key}",
+            "Content-Type": "application/json",
+        }
+        url = f"{client.get_url(cls.endpoint)}/{record_id}/"
+        logger.debug(f"GET request to {url} for from_id")
+        response = requests.get(
+            url,
+            headers=headers,
+        )
+        response.raise_for_status()
+        return cls(**response.json())
 
     def update(self) -> None:
         """Update entity in database."""
@@ -168,7 +200,7 @@ class BaseEntity:
                 f"entity with id {self.fields['id']} does not exist"
             )
 
-    @classmethod
+    @handle_http_errors
     def get_by_id(cls, id: str) -> Dict[str, Any]:
         """Get entity by id."""
         entity_dict = cls.fields.get(id)

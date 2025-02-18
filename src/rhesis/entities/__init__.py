@@ -9,5 +9,6 @@ from .behavior import Behavior
 from .test_set import TestSet
 from .status import Status
 from .topic import Topic
+from .category import Category
 
-__all__ = ["BaseEntity", "Behavior", "TestSet", "Status", "Topic"]
+__all__ = ["BaseEntity", "Behavior", "TestSet", "Status", "Topic", "Category"]
