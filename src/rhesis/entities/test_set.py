@@ -6,6 +6,7 @@ from typing import Any, cast, Optional, Union
 
 from rhesis.entities import BaseEntity
 from rhesis.entities.base_entity import handle_http_errors
+from rhesis.utils import count_tokens
 
 
 class TestSet(BaseEntity):
@@ -180,3 +181,65 @@ class TestSet(BaseEntity):
         )
         response.raise_for_status()
         return cast(list[Any], response.json())
+
+    def count_tokens(self, encoding_name: str = "cl100k_base") -> dict[str, int]:
+        """Count tokens for all prompts in the test set.
+
+        Args:
+            encoding_name: The name of the encoding to use. Defaults to cl100k_base
+                          (used by GPT-4 and GPT-3.5-turbo)
+
+        Returns:
+            dict[str, int]: A dictionary containing:
+                - 'total': Total number of tokens across all prompts
+                - 'average': Average tokens per prompt
+                - 'max': Maximum tokens in any prompt
+                - 'min': Minimum tokens in any prompt
+                - 'prompt_count': Number of prompts analyzed
+
+        Examples:
+            >>> test_set = TestSet(id="test-set-id")
+            >>> token_stats = test_set.count_prompt_tokens()
+            >>> print(f"Total tokens: {token_stats['total']}")
+            >>> print(f"Average tokens per prompt: {token_stats['average']}")
+        """
+        # Ensure prompts are loaded
+        if self.prompts is None:
+            self.get_prompts()
+        
+        if not self.prompts:
+            return {
+                "total": 0,
+                "average": 0,
+                "max": 0,
+                "min": 0,
+                "prompt_count": 0
+            }
+
+        # Count tokens for each prompt's content
+        token_counts = []
+        for prompt in self.prompts:
+            content = prompt.get("content", "")
+            if not isinstance(content, str):
+                continue
+            
+            token_count = count_tokens(content, encoding_name)
+            if token_count is not None:
+                token_counts.append(token_count)
+
+        if not token_counts:
+            return {
+                "total": 0,
+                "average": 0,
+                "max": 0,
+                "min": 0,
+                "prompt_count": 0
+            }
+
+        return {
+            "total": sum(token_counts),
+            "average": round(sum(token_counts) / len(token_counts), 2),
+            "max": max(token_counts),
+            "min": min(token_counts),
+            "prompt_count": len(token_counts)
+        }
