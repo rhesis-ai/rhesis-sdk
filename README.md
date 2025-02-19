@@ -15,6 +15,7 @@ The Rhesis SDK currently provides functionality to work with Rhesis test sets th
 - **List Test Sets**: Browse through available curated test sets
 - **Load Test Sets**: Load specific test sets for your use case
 - **Download Test Sets**: Download test set data for offline use
+- **Generate Test Sets**: Generate new test sets from basic prompts
 
 ## Installation
 
@@ -78,11 +79,15 @@ test_set.load()
 # Download test set data
 test_set.download()
 
+# Generate a new test set
+prompt_synthesizer = PromptSynthesizer(prompt="Generate 5 test cases for the following prompt: {prompt}")
+test_set = prompt_synthesizer.generate(num_tests=5)
+
 ```
 
 For more detailed examples, check out our [example notebooks](examples/).
 
-### Generating custom Test Sets
+### Generating Custom Test Sets
 
 If none of the existing test sets fit your needs, you can generate your own.
 
