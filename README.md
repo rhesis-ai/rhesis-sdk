@@ -8,6 +8,14 @@
 
 The Rhesis SDK enables developers to access curated test sets and generate dynamic ones for GenAI applications. It provides tools to tailor validations to your needs and integrate seamlessly to keep your Gen AI robust, reliable & compliant.
 
+## Features
+
+The Rhesis SDK currently provides functionality to work with Rhesis test sets through routine operations:
+
+- **List Test Sets**: Browse through available curated test sets
+- **Load Test Sets**: Load specific test sets for your use case
+- **Download Test Sets**: Download test set data for offline use
+
 ## Installation
 
 Install the Rhesis SDK using pip:
@@ -49,14 +57,6 @@ import rhesis
 rhesis.base_url = "https://api.rhesis.ai"  # optional
 rhesis.api_key = "rh-XXXXXXXXXXXXXXXXXXXX"
 ```
-
-## Features
-
-The Rhesis SDK currently provides functionality to work with Rhesis test sets through routine operations:
-
-- **List Test Sets**: Browse through available curated test sets
-- **Load Test Sets**: Load specific test sets for your use case
-- **Download Test Sets**: Download test set data for offline use
 
 ## Quick Start
 
