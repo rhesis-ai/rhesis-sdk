@@ -13,7 +13,7 @@ class TestTopic(BaseEntityTest):
         "description": "This is a test topic",
         "parent_id": None,
         "entity_type_id": None,
-        "status_id": None
+        "status_id": None,
     }
 
     def test_create_with_parent(self, test_entity):
@@ -23,11 +23,11 @@ class TestTopic(BaseEntityTest):
             "description": "This is a child topic",
             "parent_id": str(test_entity["id"]),
             "entity_type_id": None,
-            "status_id": None
+            "status_id": None,
         }
         child_topic = self.entity_class(**child_data).save()
         assert child_topic["parent_id"] == test_entity["id"]
-        
+
         # Clean up the child topic
         try:
             self.entity_class.from_id(child_topic["id"]).delete(child_topic["id"])

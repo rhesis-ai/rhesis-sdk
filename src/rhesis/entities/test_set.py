@@ -166,7 +166,7 @@ class TestSet(BaseEntity):
                 "Cannot update test set: created_at must be a datetime object"
             )
 
-    def count_tokens(self, encoding_name: str = "cl100k_base") -> dict[str, int]:
+    def count_tokens(self, encoding_name: str = "cl100k_base") -> Dict[str, int]:
         """Count tokens for all prompts in the test set.
 
         Args:
@@ -174,30 +174,19 @@ class TestSet(BaseEntity):
                           (used by GPT-4 and GPT-3.5-turbo)
 
         Returns:
-            dict[str, int]: A dictionary containing:
-                - 'total': Total number of tokens across all prompts
-                - 'average': Average tokens per prompt
-                - 'max': Maximum tokens in any prompt
-                - 'min': Minimum tokens in any prompt
-                - 'prompt_count': Number of prompts analyzed
-
-        Examples:
-            >>> test_set = TestSet(id="test-set-id")
-            >>> token_stats = test_set.count_prompt_tokens()
-            >>> print(f"Total tokens: {token_stats['total']}")
-            >>> print(f"Average tokens per prompt: {token_stats['average']}")
+            Dict[str, int]: A dictionary containing token statistics
         """
         # Ensure prompts are loaded
         if self.prompts is None:
             self.get_prompts()
-        
+
         if not self.prompts:
             return {
                 "total": 0,
                 "average": 0,
                 "max": 0,
                 "min": 0,
-                "prompt_count": 0
+                "prompt_count": 0,
             }
 
         # Count tokens for each prompt's content
@@ -206,7 +195,7 @@ class TestSet(BaseEntity):
             content = prompt.get("content", "")
             if not isinstance(content, str):
                 continue
-            
+
             token_count = count_tokens(content, encoding_name)
             if token_count is not None:
                 token_counts.append(token_count)
@@ -217,38 +206,35 @@ class TestSet(BaseEntity):
                 "average": 0,
                 "max": 0,
                 "min": 0,
-                "prompt_count": 0
+                "prompt_count": 0,
             }
 
         return {
             "total": sum(token_counts),
-            "average": round(sum(token_counts) / len(token_counts), 2),
+            "average": int(round(sum(token_counts) / len(token_counts))),
             "max": max(token_counts),
             "min": min(token_counts),
-            "prompt_count": len(token_counts)
+            "prompt_count": len(token_counts),
         }
 
     def to_dict(self) -> List[Dict[str, Any]]:
         """Convert the test set prompts to a list of dictionaries.
-        
+
         Returns:
             List[Dict[str, Any]]: A list of dictionaries containing prompt data
-            
-        Example:
-            >>> test_set = TestSet(id='123')
-            >>> prompts_dict = test_set.to_dict()
-            >>> print(f"Number of prompts: {len(prompts_dict)}")
         """
         if self.prompts is None:
             self.get_prompts()
-        return self.prompts
+        if self.prompts is None:  # Double-check after get_prompts
+            return []
+        return cast(List[Dict[str, Any]], self.prompts)
 
     def to_pandas(self) -> pd.DataFrame:
         """Convert the test set prompts to a pandas DataFrame.
-        
+
         Returns:
             pd.DataFrame: A DataFrame containing the prompt data
-            
+
         Example:
             >>> test_set = TestSet(id='123')
             >>> df = test_set.to_pandas()
@@ -260,17 +246,17 @@ class TestSet(BaseEntity):
 
     def to_parquet(self, path: Optional[str] = None) -> pd.DataFrame:
         """Convert the test set prompts to a parquet file.
-        
+
         Args:
             path: The path where the parquet file should be saved.
                  If None, uses 'test_set_{id}.parquet'
-                 
+
         Returns:
             pd.DataFrame: The DataFrame that was saved to parquet
-            
+
         Raises:
             ImportError: If pyarrow is not installed
-            
+
         Example:
             >>> test_set = TestSet(id='123')
             >>> df = test_set.to_parquet('my_test_set.parquet')
@@ -282,33 +268,33 @@ class TestSet(BaseEntity):
                 "pyarrow is required for parquet support. "
                 "Install it with: pip install pyarrow"
             )
-            
+
         df = self.to_pandas()
-        
+
         if path is None:
             path = f"test_set_{self.fields['id']}.parquet"
-            
+
         df.to_parquet(path)
         return df
 
     def to_csv(self, path: Optional[str] = None) -> pd.DataFrame:
         """Convert the test set prompts to a CSV file.
-        
+
         Args:
             path: The path where the CSV file should be saved.
                  If None, uses 'test_set_{id}.csv'
-                 
+
         Returns:
             pd.DataFrame: The DataFrame that was saved to CSV
-            
+
         Example:
             >>> test_set = TestSet(id='123')
             >>> df = test_set.to_csv('my_test_set.csv')
         """
         df = self.to_pandas()
-        
+
         if path is None:
             path = f"test_set_{self.fields['id']}.csv"
-            
+
         df.to_csv(path, index=False)
         return df

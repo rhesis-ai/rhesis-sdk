@@ -1,6 +1,6 @@
 import functools
 import requests
-from typing import Optional, Dict, Any, Callable, TypeVar, cast, Type
+from typing import Optional, Dict, Any, Callable, TypeVar, cast
 from rhesis.client import Client
 from datetime import datetime
 import logging
@@ -12,19 +12,28 @@ logger = logging.getLogger(__name__)
 
 def handle_http_errors(func: Callable[..., T]) -> Callable[..., Optional[T]]:
     """Decorator to handle HTTP errors in API requests."""
+
     @functools.wraps(func)
-    def wrapper(self_or_cls, *args: Any, **kwargs: Any) -> Optional[T]:
+    def wrapper(self_or_cls: Any, *args: Any, **kwargs: Any) -> Optional[T]:
         try:
             return func(self_or_cls, *args, **kwargs)
         except requests.exceptions.HTTPError as e:
             logger.error(f"HTTP error occurred: {e}")
-            logger.error(f"Response content: {e.response.content.decode()}")
+            # Handle potential string or bytes content
+            content = e.response.content
+            if isinstance(content, bytes):
+                content = content.decode()
+            logger.error(f"Response content: {content}")
             logger.error(f"Request URL: {e.response.request.url}")
             logger.error(f"Request method: {e.response.request.method}")
             logger.error(f"Request headers: {e.response.request.headers}")
             if e.response.request.body:
-                logger.error(f"Request body: {e.response.request.body.decode()}")
+                body = e.response.request.body
+                if isinstance(body, bytes):
+                    body = body.decode()
+                logger.error(f"Request body: {body}")
             return None
+
     return wrapper
 
 
@@ -59,11 +68,9 @@ class BaseEntity:
     def save(self) -> Optional[Dict[str, Any]]:
         """Save the entity to the database."""
         try:
-            # Use all fields except 'id' for the request body
-            data = {k: v for k, v in self.fields.items() if k != 'id'}
-            
+            data = {k: v for k, v in self.fields.items() if k != "id"}
+
             if "id" in self.fields:
-                # Update existing entity
                 url = f"{self.client.get_url(self.endpoint)}/{self.fields['id']}/"
                 try:
                     response = requests.put(
@@ -71,23 +78,19 @@ class BaseEntity:
                         json=data,
                         headers=self.headers,
                     )
-                    if response.status_code == 200:
-                        return response.json()
                     response.raise_for_status()
+                    return dict(response.json())
                 except requests.exceptions.RequestException:
                     raise
             else:
-                # Create new entity
                 url = f"{self.client.get_url(self.endpoint)}/"
                 response = requests.post(
                     url,
                     json=data,
                     headers=self.headers,
                 )
-                if response.status_code == 200:
-                    return response.json()
                 response.raise_for_status()
-            return None
+                return dict(response.json())
         except requests.exceptions.HTTPError:
             return None
 
@@ -150,7 +153,7 @@ class BaseEntity:
             "Content-Type": "application/json",
         }
         url = f"{client.get_url(cls.endpoint)}/"
-        
+
         try:
             response = requests.get(
                 url,
@@ -165,7 +168,7 @@ class BaseEntity:
             response.raise_for_status()
         except requests.exceptions.RequestException:
             raise
-        
+
         return None
 
     @handle_http_errors
@@ -206,10 +209,10 @@ class BaseEntity:
         entity_dict = cls.fields.get(id)
         if entity_dict is None:
             raise ValueError(
-                f"Cannot get {cls.__name__}: "
+                f"Cannot get {cls.__class__.__name__}: "
                 f"entity with id {id} does not exist in database"
             )
-        return cast(Dict[str, Any], entity_dict)
+        return dict(entity_dict)
 
     def _validate_update(self) -> None:
         """Validate entity before update."""

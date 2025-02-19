@@ -1,4 +1,5 @@
 """Utility functions for the Rhesis SDK."""
+
 import tiktoken
 from typing import Optional
 
@@ -8,7 +9,7 @@ def count_tokens(text: str, encoding_name: str = "cl100k_base") -> Optional[int]
 
     Args:
         text: The input text to count tokens for
-        encoding_name: The name of the encoding to use. Defaults to cl100k_base 
+        encoding_name: The name of the encoding to use. Defaults to cl100k_base
                       (used by GPT-4 and GPT-3.5-turbo)
 
     Returns:
@@ -17,7 +18,7 @@ def count_tokens(text: str, encoding_name: str = "cl100k_base") -> Optional[int]
     Examples:
         >>> count_tokens("Hello, world!")
         4
-        >>> count_tokens("Complex text", encoding_name="p50k_base") 
+        >>> count_tokens("Complex text", encoding_name="p50k_base")
         2
     """
     try:
@@ -26,6 +27,7 @@ def count_tokens(text: str, encoding_name: str = "cl100k_base") -> Optional[int]
     except Exception as e:
         # Log the error but don't raise it to avoid breaking client code
         import logging
+
         logger = logging.getLogger(__name__)
         logger.error(f"Failed to count tokens: {str(e)}")
         return None
