@@ -2,7 +2,7 @@ import os
 import requests
 import pandas as pd
 from datetime import datetime
-from typing import Any, cast, Optional, Union
+from typing import Any, cast, Optional, Union, Dict, List
 
 from rhesis.entities import BaseEntity
 from rhesis.entities.base_entity import handle_http_errors
@@ -45,6 +45,8 @@ class TestSet(BaseEntity):
             **fields: Arbitrary keyword arguments representing test set fields.
         """
         super().__init__(**fields)
+
+        self.prompts = fields.get("prompts", None)
 
     @handle_http_errors
     def get_prompts(self, **kwargs: Any) -> list[Any]:
@@ -164,24 +166,6 @@ class TestSet(BaseEntity):
                 "Cannot update test set: created_at must be a datetime object"
             )
 
-    @classmethod
-    def all(cls, **kwargs: Any) -> list[Any]:
-        """Retrieve all records from the API.
-
-        Args:
-            **kwargs: Additional query parameters for the API request.
-
-        Returns:
-            list[Any]: List of test set records.
-        """
-        response = requests.get(
-            cls.client.get_url(cls.endpoint),
-            params=kwargs,
-            headers=cls.headers,
-        )
-        response.raise_for_status()
-        return cast(list[Any], response.json())
-
     def count_tokens(self, encoding_name: str = "cl100k_base") -> dict[str, int]:
         """Count tokens for all prompts in the test set.
 
@@ -243,3 +227,88 @@ class TestSet(BaseEntity):
             "min": min(token_counts),
             "prompt_count": len(token_counts)
         }
+
+    def to_dict(self) -> List[Dict[str, Any]]:
+        """Convert the test set prompts to a list of dictionaries.
+        
+        Returns:
+            List[Dict[str, Any]]: A list of dictionaries containing prompt data
+            
+        Example:
+            >>> test_set = TestSet(id='123')
+            >>> prompts_dict = test_set.to_dict()
+            >>> print(f"Number of prompts: {len(prompts_dict)}")
+        """
+        if self.prompts is None:
+            self.get_prompts()
+        return self.prompts
+
+    def to_pandas(self) -> pd.DataFrame:
+        """Convert the test set prompts to a pandas DataFrame.
+        
+        Returns:
+            pd.DataFrame: A DataFrame containing the prompt data
+            
+        Example:
+            >>> test_set = TestSet(id='123')
+            >>> df = test_set.to_pandas()
+            >>> print(df.columns)
+        """
+        if self.prompts is None:
+            self.get_prompts()
+        return pd.DataFrame(self.prompts)
+
+    def to_parquet(self, path: Optional[str] = None) -> pd.DataFrame:
+        """Convert the test set prompts to a parquet file.
+        
+        Args:
+            path: The path where the parquet file should be saved.
+                 If None, uses 'test_set_{id}.parquet'
+                 
+        Returns:
+            pd.DataFrame: The DataFrame that was saved to parquet
+            
+        Raises:
+            ImportError: If pyarrow is not installed
+            
+        Example:
+            >>> test_set = TestSet(id='123')
+            >>> df = test_set.to_parquet('my_test_set.parquet')
+        """
+        try:
+            import pyarrow  # noqa: F401
+        except ImportError:
+            raise ImportError(
+                "pyarrow is required for parquet support. "
+                "Install it with: pip install pyarrow"
+            )
+            
+        df = self.to_pandas()
+        
+        if path is None:
+            path = f"test_set_{self.fields['id']}.parquet"
+            
+        df.to_parquet(path)
+        return df
+
+    def to_csv(self, path: Optional[str] = None) -> pd.DataFrame:
+        """Convert the test set prompts to a CSV file.
+        
+        Args:
+            path: The path where the CSV file should be saved.
+                 If None, uses 'test_set_{id}.csv'
+                 
+        Returns:
+            pd.DataFrame: The DataFrame that was saved to CSV
+            
+        Example:
+            >>> test_set = TestSet(id='123')
+            >>> df = test_set.to_csv('my_test_set.csv')
+        """
+        df = self.to_pandas()
+        
+        if path is None:
+            path = f"test_set_{self.fields['id']}.csv"
+            
+        df.to_csv(path, index=False)
+        return df
