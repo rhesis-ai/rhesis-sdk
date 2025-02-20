@@ -4,6 +4,30 @@
   <img src="https://cdn.prod.website-files.com/66f422128b6d0f3351ce41e3/66fd07dc0b6994070ec5b54b_Logo%20Rhesis%20Orange-p-500.png" alt="Rhesis Logo" width="300"/>
 </p>
 
+<p align="center">
+  <a href="https://github.com/rhesis-ai/rhesis-sdk/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/rhesis-ai/rhesis-sdk" alt="License">
+  </a>
+  <a href="https://pypi.org/project/rhesis-sdk/">
+    <img src="https://img.shields.io/pypi/v/rhesis-sdk" alt="PyPI Version">
+  </a>
+  <a href="https://pypi.org/project/rhesis-sdk/">
+    <img src="https://img.shields.io/pypi/pyversions/rhesis-sdk" alt="Python Versions">
+  </a>
+  <a href="https://discord.rhesis.ai">
+    <img src="https://img.shields.io/discord/1340989671601209408?color=7289da&label=Discord&logo=discord&logoColor=white" alt="Discord">
+  </a>
+  <a href="https://www.linkedin.com/company/rhesis-ai">
+    <img src="https://img.shields.io/badge/LinkedIn-Rhesis_AI-blue?logo=linkedin" alt="LinkedIn">
+  </a>
+  <a href="https://huggingface.co/rhesis">
+    <img src="https://img.shields.io/badge/🤗-Rhesis-yellow" alt="Hugging Face">
+  </a>
+  <a href="https://docs.rhesis.ai">
+    <img src="https://img.shields.io/badge/docs-rhesis.ai-blue" alt="Documentation">
+  </a>
+</p>
+
 > Gen AI applications that deliver value, not surprises.
 
 The Rhesis SDK enables developers to access curated test sets and generate dynamic ones for GenAI applications. It provides tools to tailor validations to your needs and integrate seamlessly to keep your Gen AI robust, reliable & compliant.
