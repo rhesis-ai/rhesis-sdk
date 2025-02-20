@@ -32,7 +32,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added PromptSynthesizer for generating test sets from prompts
 - Added example usage for PromptSynthesizer
 
+## [0.1.4] - 2025-02-20
+
+### Added
+- Added CLI scaffolding for rhesis
+
 [0.1.0]: https://github.com/username/repository/releases/tag/v0.1.0
 [0.1.1]: https://github.com/username/repository/releases/tag/v0.1.1
 [0.1.2]: https://github.com/username/repository/releases/tag/v0.1.2
 [0.1.3]: https://github.com/username/repository/releases/tag/v0.1.3
+[0.1.4]: https://github.com/username/repository/releases/tag/v0.1.4
