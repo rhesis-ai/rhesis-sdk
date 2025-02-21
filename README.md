@@ -1,9 +1,8 @@
 # Rhesis SDK
-
+<meta name="google-site-verification" content="muyrLNdeOT9KjYaOnfpOmGi8K5xPe8o7r_ov3kEGdXA" />
 <p align="center">
   <img src="https://cdn.prod.website-files.com/66f422128b6d0f3351ce41e3/66fd07dc0b6994070ec5b54b_Logo%20Rhesis%20Orange-p-500.png" alt="Rhesis Logo" width="300"/>
 </p>
-
 <p align="center">
   <a href="https://github.com/rhesis-ai/rhesis-sdk/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/rhesis-ai/rhesis-sdk" alt="License">
