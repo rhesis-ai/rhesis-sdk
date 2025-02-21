@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rhesis-sdk"
-version = "0.1.4"
+version = "0.1.5"
 description = "SDK for testing and validating LLM applications"
 authors = ["Engineering Team <engineering@rhesis.ai>", "Harry Cruz <harry@rhesis.ai>", "Nicolai Bohn <nicolai@rhesis.ai>"]
 license = "MIT"
