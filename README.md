@@ -104,7 +104,7 @@ test_set.load()
 test_set.download()
 
 # Generate a new test set
-prompt_synthesizer = PromptSynthesizer(prompt="Generate 5 test cases for the following prompt: {prompt}")
+prompt_synthesizer = PromptSynthesizer(prompt="Generate tests for an insurance chatbot that can answer questions about the company's policies.")
 test_set = prompt_synthesizer.generate(num_tests=5)
 
 ```

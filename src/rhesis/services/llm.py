@@ -50,4 +50,5 @@ class LLMService:
         )
 
         response.raise_for_status()
-        return Dict[str, Any](response.json())
+        result: Dict[str, Any] = response.json()
+        return result
