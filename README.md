@@ -141,7 +141,7 @@ You can also find us on [Hugging Face](https://huggingface.co/rhesis). There, yo
 
 For questions, issues, or feature requests:
 - Visit our [documentation](https://docs.rhesis.ai)
-- Contact us at support@rhesis.ai
+- Contact us at hello@rhesis.ai
 - Create an issue in this repository
 
 ## License 📝
