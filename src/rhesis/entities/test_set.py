@@ -3,10 +3,13 @@ import requests
 import pandas as pd
 from datetime import datetime
 from typing import Any, cast, Optional, Union, Dict, List
+from pathlib import Path
+from jinja2 import Template
 
 from rhesis.entities import BaseEntity
 from rhesis.entities.base_entity import handle_http_errors
 from rhesis.utils import count_tokens
+from rhesis.services.llm import LLMService
 
 
 class TestSet(BaseEntity):
@@ -37,6 +40,9 @@ class TestSet(BaseEntity):
 
     #: :no-index: Cached list of prompts for the test set
     prompts: Optional[list[Any]] = None
+    categories: Optional[list[str]] = None
+    topics: Optional[list[str]] = None
+    prompt_count: Optional[int] = None
 
     def __init__(self, **fields: Any) -> None:
         """Initialize a TestSet instance.
@@ -46,6 +52,9 @@ class TestSet(BaseEntity):
         """
         super().__init__(**fields)
 
+        self.name = fields.get("name", None)
+        self.description = fields.get("description", None)
+        self.short_description = fields.get("short_description", None)
         self.prompts = fields.get("prompts", None)
 
     @handle_http_errors
@@ -298,3 +307,97 @@ class TestSet(BaseEntity):
 
         df.to_csv(path, index=False)
         return df
+
+    def get_properties(self) -> Dict[str, Any]:
+        """Get the test set properties including basic info and prompt analysis.
+
+        Returns:
+            Dict[str, Any]: A dictionary containing:
+                - basic properties (name, description, short_description)
+                - unique categories and topics from prompts
+                - total number of prompts
+
+        Example:
+            >>> test_set = TestSet(id='123')
+            >>> props = test_set.get_properties()
+            >>> print(f"Categories: {props['categories']}")
+            >>> print(f"Topics: {props['topics']}")
+        """
+        # Ensure prompts are loaded
+        if self.prompts is None:
+            self.get_prompts()
+
+        # Initialize sets for unique categories and topics
+        categories = set()
+        topics = set()
+
+        # Extract unique categories and topics from prompts
+        if self.prompts:
+            for prompt in self.prompts:
+                if isinstance(prompt, dict):
+                    if "category" in prompt and prompt["category"]:
+                        categories.add(prompt["category"])
+                    if "topic" in prompt and prompt["topic"]:
+                        topics.add(prompt["topic"])
+
+        return {
+            "name": self.name,
+            "description": self.description,
+            "short_description": self.short_description,
+            "categories": sorted(list(categories)),
+            "topics": sorted(list(topics)),
+            "prompt_count": len(self.prompts) if self.prompts else 0
+        }
+
+    def set_attributes(self) -> None:
+        """Set test set attributes using LLM based on categories and topics in prompts.
+        
+        This method:
+        1. Gets the unique categories and topics from prompts
+        2. Uses the LLM service to generate appropriate name, description, and short description
+        3. Updates the test set's attributes
+        
+        Example:
+            >>> test_set = TestSet(id='123')
+            >>> test_set.set_attributes()
+            >>> print(f"Name: {test_set.name}")
+            >>> print(f"Description: {test_set.description}")
+        """
+        # Ensure prompts are loaded
+        if self.prompts is None:
+            self.get_prompts()
+
+        # Get unique categories and topics
+        categories = set()
+        topics = set()
+        for prompt in self.prompts:
+            if isinstance(prompt, dict):
+                if "category" in prompt and prompt["category"]:
+                    categories.add(prompt["category"])
+                if "topic" in prompt and prompt["topic"]:
+                    topics.add(prompt["topic"])
+
+        # Load the prompt template
+        prompt_path = Path(__file__).parent.parent / "synthesizers" / "assets" / "test_set_attributes.md"
+        with open(prompt_path, "r") as f:
+            template = Template(f.read())
+
+        # Format the prompt
+        formatted_prompt = template.render(
+            topics=sorted(list(topics)),
+            categories=sorted(list(categories))
+        )
+
+        # Create LLM service and get response
+        llm_service = LLMService()
+        response = llm_service.run(formatted_prompt)
+        # Update test set attributes
+        if isinstance(response, dict):
+            self.name = response.get("name")
+            self.description = response.get("description")
+            self.short_description = response.get("short_description")
+            self.categories = sorted(list(categories))
+            self.topics = sorted(list(topics))
+            self.prompt_count = len(self.prompts)
+        else:
+            raise ValueError("LLM response was not in the expected format")

@@ -88,7 +88,7 @@ class PromptSynthesizer(TestSetSynthesizer):
         # Generate all tests in a single batch
         all_test_cases = self._generate_batch(num_tests)
 
-        return TestSet(
+        test_set = TestSet(
             id=str(uuid.uuid4()),
             prompts=all_test_cases,
             metadata={
@@ -98,3 +98,8 @@ class PromptSynthesizer(TestSetSynthesizer):
                 "synthesizer": "PromptSynthesizer",
             },
         )
+
+        # Set attributes based on the generated prompts
+        test_set.set_attributes()
+
+        return test_set

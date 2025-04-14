@@ -14,7 +14,7 @@ class LLMService:
             "Content-Type": "application/json",
         }
 
-    def run(self, prompt: str, response_format: str = "json", **kwargs: Any) -> Any:
+    def run(self, prompt: str, response_format: str = "json_object", **kwargs: Any) -> Any:
         """Run a chat completion using the API, and return the response."""
         try:
             response = self.create_completion(
@@ -22,9 +22,11 @@ class LLMService:
                 response_format=response_format,
                 **kwargs,
             )
-            if response_format == "json":
-                return json.loads(response["choices"][0]["message"]["content"])
-            return response["choices"][0]["message"]["content"]
+            response_content = response["choices"][0]["message"]["content"]
+            if response_format == "json_object":
+                return json.loads(response_content)
+            
+            return response_content
         
         except (requests.exceptions.HTTPError, KeyError, IndexError) as e:
             # Log the error and return an appropriate message
