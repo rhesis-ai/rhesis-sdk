@@ -21,7 +21,10 @@ You are an **LLM paraphrasing expert** tasked with generating diverse paraphrase
 YOU MUST return a JSON array containing EXACTLY {{ num_paraphrases }} paraphrased versions, formatted like this:
 [
   {
-    "content": "Your paraphrased version of the prompt goes here"
+    "prompt": {
+      "content": "Your paraphrased version of the prompt goes here",
+      "language_code": "en"
+    }
   }
 ]
 
@@ -29,4 +32,5 @@ Remember:
 1. Return EXACTLY {{ num_paraphrases }} paraphrased versions
 2. Format as a JSON array with square brackets []
 3. Maintain the original intent and characteristics
-4. Only return the paraphrased content - other attributes will be copied from the original
+4. Each paraphrase must be a prompt object with content and language_code
+5. Only return the paraphrased content - other attributes will be copied from the original

@@ -57,7 +57,7 @@ class PromptSynthesizer(TestSetSynthesizer):
 
         return [
             {
-                "content": test["prompt"],
+                "prompt": test["prompt"],
                 "behavior": test["behavior"],
                 "category": test["category"],
                 "topic": test["topic"],
@@ -90,7 +90,7 @@ class PromptSynthesizer(TestSetSynthesizer):
 
         test_set = TestSet(
             id=str(uuid.uuid4()),
-            prompts=all_test_cases,
+            tests=all_test_cases,
             metadata={
                 "generation_prompt": self.prompt,
                 "num_tests": num_tests,
@@ -99,7 +99,7 @@ class PromptSynthesizer(TestSetSynthesizer):
             },
         )
 
-        # Set attributes based on the generated prompts
+        # Set attributes based on the generated tests
         test_set.set_attributes()
 
         return test_set

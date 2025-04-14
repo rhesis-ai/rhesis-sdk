@@ -38,11 +38,11 @@ class TestSet(BaseEntity):
     #: :no-index: The API endpoint for test sets
     endpoint = "test_sets"
 
-    #: :no-index: Cached list of prompts for the test set
-    prompts: Optional[list[Any]] = None
+    #: :no-index: Cached list of tests for the test set
+    tests: Optional[list[Any]] = None
     categories: Optional[list[str]] = None
     topics: Optional[list[str]] = None
-    prompt_count: Optional[int] = None
+    test_count: Optional[int] = None
 
     def __init__(self, **fields: Any) -> None:
         """Initialize a TestSet instance.
@@ -55,26 +55,26 @@ class TestSet(BaseEntity):
         self.name = fields.get("name", None)
         self.description = fields.get("description", None)
         self.short_description = fields.get("short_description", None)
-        self.prompts = fields.get("prompts", None)
+        self.tests = fields.get("tests", None)
 
     @handle_http_errors
-    def get_prompts(self, **kwargs: Any) -> list[Any]:
-        """Retrieve prompts for the test set from the API.
+    def get_tests(self, **kwargs: Any) -> list[Any]:
+        """Retrieve tests for the test set from the API.
 
-        If prompts are already cached, returns the cached version.
-        Otherwise, fetches prompts from the API.
+        If tests are already cached, returns the cached version.
+        Otherwise, fetches tests from the API.
 
         Args:
             **kwargs: Additional query parameters for the API request.
 
         Returns:
-            list[Any]: A list of prompts associated with the test set.
+            list[Any]: A list of tests associated with the test set.
         """
-        if self.prompts is not None:
-            return self.prompts
+        if self.tests is not None:
+            return self.tests
 
         response = requests.get(
-            self.client.get_url(f"{self.endpoint}/{self.fields['id']}/prompts"),
+            self.client.get_url(f"{self.endpoint}/{self.fields['id']}/tests"),
             params=kwargs,
             headers=self.headers,
         )
@@ -83,16 +83,16 @@ class TestSet(BaseEntity):
 
     @handle_http_errors
     def load(self, format: str = "pandas") -> Union[pd.DataFrame, list[Any]]:
-        """Load and format the test set prompts.
+        """Load and format the test set tests.
 
-        Fetches the test set data and its prompts, then returns them in the specified format.
+        Fetches the test set data and its tests, then returns them in the specified format.
 
         Args:
             format (str, optional): The desired output format.
                 Options are "pandas", "parquet", or "dict". Defaults to "pandas".
 
         Returns:
-            Union[pd.DataFrame, list[Any]]: The prompts in the specified format.
+            Union[pd.DataFrame, list[Any]]: The tests in the specified format.
                 Returns a pandas DataFrame if format="pandas",
                 writes to parquet file if format="parquet",
                 or a list of dictionaries if format="dict".
@@ -102,13 +102,13 @@ class TestSet(BaseEntity):
             ImportError: If pyarrow is not installed when using parquet format.
         """
         self.fetch()
-        prompts = self.get_prompts()
-        if prompts is None:
-            raise ValueError("Failed to fetch prompts")
-        self.prompts = prompts
+        tests = self.get_tests()
+        if tests is None:
+            raise ValueError("Failed to fetch tests")
+        self.tests = tests
 
         if format == "pandas":
-            return pd.DataFrame(self.prompts)
+            return pd.DataFrame(self.tests)
         elif format == "parquet":
             try:
                 import pyarrow  # noqa: F401
@@ -117,12 +117,12 @@ class TestSet(BaseEntity):
                     "pyarrow is required for parquet support. "
                     "Install it with: pip install pyarrow"
                 )
-            df = pd.DataFrame(self.prompts)
+            df = pd.DataFrame(self.tests)
             file_path = f"test_set_{self.fields['id']}.parquet"
             df.to_parquet(file_path)
             return df
         elif format == "dict":
-            return self.prompts
+            return self.tests
         else:
             raise ValueError(f"Invalid format: {format}")
 
@@ -186,22 +186,22 @@ class TestSet(BaseEntity):
             Dict[str, int]: A dictionary containing token statistics
         """
         # Ensure prompts are loaded
-        if self.prompts is None:
-            self.get_prompts()
+        if self.tests is None:
+            self.get_tests()
 
-        if not self.prompts:
+        if not self.tests:
             return {
                 "total": 0,
                 "average": 0,
                 "max": 0,
                 "min": 0,
-                "prompt_count": 0,
+                "test_count": 0,
             }
 
         # Count tokens for each prompt's content
         token_counts = []
-        for prompt in self.prompts:
-            content = prompt.get("content", "")
+        for test in self.tests:
+            content = test.get("content", "")
             if not isinstance(content, str):
                 continue
 
@@ -215,7 +215,7 @@ class TestSet(BaseEntity):
                 "average": 0,
                 "max": 0,
                 "min": 0,
-                "prompt_count": 0,
+                "test_count": 0,
             }
 
         return {
@@ -223,38 +223,38 @@ class TestSet(BaseEntity):
             "average": int(round(sum(token_counts) / len(token_counts))),
             "max": max(token_counts),
             "min": min(token_counts),
-            "prompt_count": len(token_counts),
+            "test_count": len(token_counts),
         }
 
     def to_dict(self) -> List[Dict[str, Any]]:
-        """Convert the test set prompts to a list of dictionaries.
+        """Convert the test set tests to a list of dictionaries.
 
         Returns:
-            List[Dict[str, Any]]: A list of dictionaries containing prompt data
+            List[Dict[str, Any]]: A list of dictionaries containing test data
         """
-        if self.prompts is None:
-            self.get_prompts()
-        if self.prompts is None:  # Double-check after get_prompts
+        if self.tests is None:
+            self.get_tests()
+        if self.tests is None:  # Double-check after get_tests
             return []
-        return cast(List[Dict[str, Any]], self.prompts)
+        return cast(List[Dict[str, Any]], self.tests)
 
     def to_pandas(self) -> pd.DataFrame:
-        """Convert the test set prompts to a pandas DataFrame.
+        """Convert the test set tests to a pandas DataFrame.
 
         Returns:
-            pd.DataFrame: A DataFrame containing the prompt data
+            pd.DataFrame: A DataFrame containing the test data
 
         Example:
             >>> test_set = TestSet(id='123')
             >>> df = test_set.to_pandas()
             >>> print(df.columns)
         """
-        if self.prompts is None:
-            self.get_prompts()
-        return pd.DataFrame(self.prompts)
+        if self.tests is None:
+            self.get_tests()
+        return pd.DataFrame(self.tests)
 
     def to_parquet(self, path: Optional[str] = None) -> pd.DataFrame:
-        """Convert the test set prompts to a parquet file.
+        """Convert the test set tests to a parquet file.
 
         Args:
             path: The path where the parquet file should be saved.
@@ -287,7 +287,7 @@ class TestSet(BaseEntity):
         return df
 
     def to_csv(self, path: Optional[str] = None) -> pd.DataFrame:
-        """Convert the test set prompts to a CSV file.
+        """Convert the test set tests to a CSV file.
 
         Args:
             path: The path where the CSV file should be saved.
@@ -309,13 +309,13 @@ class TestSet(BaseEntity):
         return df
 
     def get_properties(self) -> Dict[str, Any]:
-        """Get the test set properties including basic info and prompt analysis.
+        """Get the test set properties including basic info and test analysis.
 
         Returns:
             Dict[str, Any]: A dictionary containing:
                 - basic properties (name, description, short_description)
-                - unique categories and topics from prompts
-                - total number of prompts
+                - unique categories and topics from tests
+                - total number of tests
 
         Example:
             >>> test_set = TestSet(id='123')
@@ -323,22 +323,22 @@ class TestSet(BaseEntity):
             >>> print(f"Categories: {props['categories']}")
             >>> print(f"Topics: {props['topics']}")
         """
-        # Ensure prompts are loaded
-        if self.prompts is None:
-            self.get_prompts()
+        # Ensure tests are loaded
+        if self.tests is None:
+            self.get_tests()
 
         # Initialize sets for unique categories and topics
         categories = set()
         topics = set()
 
-        # Extract unique categories and topics from prompts
-        if self.prompts:
-            for prompt in self.prompts:
-                if isinstance(prompt, dict):
-                    if "category" in prompt and prompt["category"]:
-                        categories.add(prompt["category"])
-                    if "topic" in prompt and prompt["topic"]:
-                        topics.add(prompt["topic"])
+        # Extract unique categories and topics from tests
+        if self.tests:
+            for test in self.tests:
+                if isinstance(test, dict):
+                    if "category" in test and test["category"]:
+                        categories.add(test["category"])
+                    if "topic" in test and test["topic"]:
+                        topics.add(test["topic"])
 
         return {
             "name": self.name,
@@ -346,14 +346,14 @@ class TestSet(BaseEntity):
             "short_description": self.short_description,
             "categories": sorted(list(categories)),
             "topics": sorted(list(topics)),
-            "prompt_count": len(self.prompts) if self.prompts else 0
+            "test_count": len(self.tests) if self.tests else 0
         }
 
     def set_attributes(self) -> None:
-        """Set test set attributes using LLM based on categories and topics in prompts.
+        """Set test set attributes using LLM based on categories and topics in tests.
         
         This method:
-        1. Gets the unique categories and topics from prompts
+        1. Gets the unique categories and topics from tests
         2. Uses the LLM service to generate appropriate name, description, and short description
         3. Updates the test set's attributes
         
@@ -363,19 +363,19 @@ class TestSet(BaseEntity):
             >>> print(f"Name: {test_set.name}")
             >>> print(f"Description: {test_set.description}")
         """
-        # Ensure prompts are loaded
-        if self.prompts is None:
-            self.get_prompts()
+        # Ensure tests are loaded
+        if self.tests is None:
+            self.get_tests()
 
         # Get unique categories and topics
         categories = set()
         topics = set()
-        for prompt in self.prompts:
-            if isinstance(prompt, dict):
-                if "category" in prompt and prompt["category"]:
-                    categories.add(prompt["category"])
-                if "topic" in prompt and prompt["topic"]:
-                    topics.add(prompt["topic"])
+        for test in self.tests:
+            if isinstance(test, dict):
+                if "category" in test and test["category"]:
+                    categories.add(test["category"])
+                if "topic" in test and test["topic"]:
+                    topics.add(test["topic"])
 
         # Load the prompt template
         prompt_path = Path(__file__).parent.parent / "synthesizers" / "assets" / "test_set_attributes.md"
@@ -398,6 +398,6 @@ class TestSet(BaseEntity):
             self.short_description = response.get("short_description")
             self.categories = sorted(list(categories))
             self.topics = sorted(list(topics))
-            self.prompt_count = len(self.prompts)
+            self.test_count = len(self.tests)
         else:
             raise ValueError("LLM response was not in the expected format")

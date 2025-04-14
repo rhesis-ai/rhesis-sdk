@@ -46,7 +46,19 @@ class TestSetSynthesizer(ABC):
 
             # Handle direct list response
             if isinstance(parsed, list):
-                return parsed
+                # Convert old format to new format if needed
+                return [
+                    {
+                        "prompt": {
+                            "content": item["prompt"]["content"] if isinstance(item.get("prompt"), dict) else item.get("prompt", ""),
+                            "language_code": "en"
+                        },
+                        "behavior": item.get("behavior", ""),
+                        "category": item.get("category", ""),
+                        "topic": item.get("topic", "")
+                    }
+                    for item in parsed
+                ]
 
             # Handle single item response
             if isinstance(parsed, dict):

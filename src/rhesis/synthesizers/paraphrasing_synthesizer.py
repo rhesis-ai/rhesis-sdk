@@ -25,22 +25,25 @@ class ParaphrasingSynthesizer(TestSetSynthesizer):
         parsed = json.loads(content)
 
         if isinstance(parsed, list):
-            return cast(List[Dict[str, str]], parsed)
+            return [
+                {"prompt": {"content": p.get("content", ""), "language_code": "en"}}
+                for p in parsed
+            ]
 
         raise ValueError(f"Unexpected response format: {content}")
 
-    def _generate_paraphrases(self, prompt: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _generate_paraphrases(self, test: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
-        Generate paraphrased versions of a single prompt.
+        Generate paraphrased versions of a single test.
 
         Args:
-            prompt: The original prompt to paraphrase
+            test: The original test to paraphrase
 
         Returns:
             List[Dict[str, Any]]: List of paraphrased versions, exactly num_paraphrases in length
         """
         formatted_prompt = self.system_prompt.render(
-            original_prompt=prompt["content"], num_paraphrases=self.num_paraphrases
+            original_prompt=test["prompt"]["content"], num_paraphrases=self.num_paraphrases
         )
 
         messages = [
@@ -76,15 +79,18 @@ class ParaphrasingSynthesizer(TestSetSynthesizer):
 
         return [
             {
-                "content": p["content"],
-                "behavior": prompt["behavior"],
-                "category": prompt["category"],
-                "topic": prompt["topic"],
+                "prompt": {
+                    "content": p["prompt"]["content"] if isinstance(p["prompt"], dict) else p["content"],
+                    "language_code": "en"
+                },
+                "behavior": test["behavior"],
+                "category": test["category"],
+                "topic": test["topic"],
                 "metadata": {
                     "generated_by": "ParaphrasingSynthesizer",
-                    "original_prompt_id": prompt.get("id", "unknown"),
+                    "original_test_id": test.get("id", "unknown"),
                     "is_paraphrase": True,
-                    "original_content": prompt["content"],
+                    "original_content": test["prompt"]["content"] if isinstance(test["prompt"], dict) else test["prompt"],
                 },
             }
             for p in paraphrases
@@ -92,42 +98,47 @@ class ParaphrasingSynthesizer(TestSetSynthesizer):
 
     def generate(self, **kwargs: Any) -> TestSet:
         """
-        Generate paraphrased versions of all prompts in the test set.
+        Generate paraphrased versions of all tests in the test set.
 
         Args:
             **kwargs: Supports:
-                num_paraphrases (int): Number of paraphrases to generate per prompt. Defaults to 2.
+                num_paraphrases (int): Number of paraphrases to generate per test. Defaults to 2.
 
         Returns:
-            TestSet: A TestSet containing original prompts plus their paraphrased versions,
-                    with paraphrases appearing immediately after their original prompt
+            TestSet: A TestSet containing original tests plus their paraphrased versions,
+                    with paraphrases appearing immediately after their original test
         """
         self.num_paraphrases = kwargs.get("num_paraphrases", 2)
-        original_prompts = self.test_set.to_dict()
-        all_prompts = []
+        original_tests = self.test_set.to_dict()
+        all_tests = []
 
-        def process_prompt(prompt: Dict[str, Any]) -> None:
-            """Process a single prompt and its paraphrases."""
-            all_prompts.append(prompt)  # Add original
-            paraphrases = self._generate_paraphrases(prompt)  # Generate paraphrases
-            all_prompts.extend(paraphrases)  # Add paraphrases
+        def process_test(test: Dict[str, Any]) -> None:
+            """Process a single test and its paraphrases."""
+            all_tests.append(test)  # Add original
+            paraphrases = self._generate_paraphrases(test)  # Generate paraphrases
+            all_tests.extend(paraphrases)  # Add paraphrases
 
         # Use the base class's progress bar
         self._process_with_progress(
-            original_prompts,
-            process_prompt,
-            desc=f"Generating {self.num_paraphrases} paraphrases per prompt",
+            original_tests,
+            process_test,
+            desc=f"Generating {self.num_paraphrases} paraphrases per test",
         )
 
-        return TestSet(
+        test_set = TestSet(
             id=str(uuid.uuid4()),
-            prompts=all_prompts,
+            tests=all_tests,
             metadata={
                 "original_test_set_id": self.test_set.fields.get("id", "unknown"),
                 "num_paraphrases": self.num_paraphrases,
-                "num_original_prompts": len(original_prompts),
-                "total_prompts": len(all_prompts),
+                "num_original_tests": len(original_tests),
+                "total_tests": len(all_tests),
                 "batch_size": self.batch_size,
                 "synthesizer": "ParaphrasingSynthesizer",
             },
         )
+
+        # Set attributes based on the generated tests
+        test_set.set_attributes()
+
+        return test_set
