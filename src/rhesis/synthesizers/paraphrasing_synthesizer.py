@@ -1,24 +1,28 @@
-from typing import List, Dict, Any, cast
+from typing import List, Dict, Any, cast, Optional
 import json
 from rhesis.synthesizers.base import TestSetSynthesizer
 from rhesis.entities.test_set import TestSet
 import uuid
+from jinja2 import Template
 
 
 class ParaphrasingSynthesizer(TestSetSynthesizer):
     """A synthesizer that generates paraphrased versions of existing test cases."""
 
-    def __init__(self, test_set: TestSet, batch_size: int = 5):
+    def __init__(self, test_set: TestSet, batch_size: int = 5, system_prompt: Optional[str] = None):
         """
         Initialize the ParaphrasingSynthesizer.
 
         Args:
             test_set: The original test set to paraphrase
             batch_size: Maximum number of prompts to process in a single LLM call
+            system_prompt: Optional custom system prompt template to override the default
         """
         super().__init__(batch_size=batch_size)
         self.test_set = test_set
         self.num_paraphrases: int = 2  # Default value, can be overridden in generate()
+        if system_prompt:
+            self.system_prompt = Template(system_prompt)
 
     def _parse_paraphrases(self, content: str) -> List[Dict[str, str]]:
         """Parse the LLM response content into a list of paraphrased versions."""

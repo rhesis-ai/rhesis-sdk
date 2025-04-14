@@ -1,22 +1,26 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import uuid
 from rhesis.synthesizers.base import TestSetSynthesizer
 from rhesis.entities.test_set import TestSet
+from jinja2 import Template
 
 
 class PromptSynthesizer(TestSetSynthesizer):
     """A synthesizer that generates test cases based on a prompt using LLM."""
 
-    def __init__(self, prompt: str, batch_size: int = 5):
+    def __init__(self, prompt: str, batch_size: int = 5, system_prompt: Optional[str] = None):
         """
         Initialize the PromptSynthesizer.
 
         Args:
             prompt: The generation prompt to use
             batch_size: Maximum number of tests to generate in a single LLM call
+            system_prompt: Optional custom system prompt template to override the default
         """
         super().__init__(batch_size=batch_size)
         self.prompt = prompt
+        if system_prompt:
+            self.system_prompt = Template(system_prompt)
 
     def _generate_batch(self, num_tests: int) -> List[Dict[str, Any]]:
         """Generate a batch of test cases."""
