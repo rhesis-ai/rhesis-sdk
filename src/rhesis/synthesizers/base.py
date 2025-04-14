@@ -50,12 +50,16 @@ class TestSetSynthesizer(ABC):
                 return [
                     {
                         "prompt": {
-                            "content": item["prompt"]["content"] if isinstance(item.get("prompt"), dict) else item.get("prompt", ""),
-                            "language_code": "en"
+                            "content": (
+                                item["prompt"]["content"]
+                                if isinstance(item.get("prompt"), dict)
+                                else item.get("prompt", "")
+                            ),
+                            "language_code": "en",
                         },
                         "behavior": item.get("behavior", ""),
                         "category": item.get("category", ""),
-                        "topic": item.get("topic", "")
+                        "topic": item.get("topic", ""),
                     }
                     for item in parsed
                 ]

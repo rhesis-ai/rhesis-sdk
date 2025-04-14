@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, cast, Optional
+from typing import List, Dict, Any, Optional
 import json
 from rhesis.synthesizers.base import TestSetSynthesizer
 from rhesis.entities.test_set import TestSet
@@ -9,7 +9,12 @@ from jinja2 import Template
 class ParaphrasingSynthesizer(TestSetSynthesizer):
     """A synthesizer that generates paraphrased versions of existing test cases."""
 
-    def __init__(self, test_set: TestSet, batch_size: int = 5, system_prompt: Optional[str] = None):
+    def __init__(
+        self,
+        test_set: TestSet,
+        batch_size: int = 5,
+        system_prompt: Optional[str] = None,
+    ):
         """
         Initialize the ParaphrasingSynthesizer.
 
@@ -24,7 +29,7 @@ class ParaphrasingSynthesizer(TestSetSynthesizer):
         if system_prompt:
             self.system_prompt = Template(system_prompt)
 
-    def _parse_paraphrases(self, content: str) -> List[Dict[str, str]]:
+    def _parse_paraphrases(self, content: str) -> List[Dict[str, Any]]:
         """Parse the LLM response content into a list of paraphrased versions."""
         parsed = json.loads(content)
 
@@ -47,7 +52,8 @@ class ParaphrasingSynthesizer(TestSetSynthesizer):
             List[Dict[str, Any]]: List of paraphrased versions, exactly num_paraphrases in length
         """
         formatted_prompt = self.system_prompt.render(
-            original_prompt=test["prompt"]["content"], num_paraphrases=self.num_paraphrases
+            original_prompt=test["prompt"]["content"],
+            num_paraphrases=self.num_paraphrases,
         )
 
         messages = [
@@ -84,8 +90,12 @@ class ParaphrasingSynthesizer(TestSetSynthesizer):
         return [
             {
                 "prompt": {
-                    "content": p["prompt"]["content"] if isinstance(p["prompt"], dict) else p["content"],
-                    "language_code": "en"
+                    "content": (
+                        p["prompt"]["content"]
+                        if isinstance(p["prompt"], dict)
+                        else p["content"]
+                    ),
+                    "language_code": "en",
                 },
                 "behavior": test["behavior"],
                 "category": test["category"],
@@ -94,7 +104,11 @@ class ParaphrasingSynthesizer(TestSetSynthesizer):
                     "generated_by": "ParaphrasingSynthesizer",
                     "original_test_id": test.get("id", "unknown"),
                     "is_paraphrase": True,
-                    "original_content": test["prompt"]["content"] if isinstance(test["prompt"], dict) else test["prompt"],
+                    "original_content": (
+                        test["prompt"]["content"]
+                        if isinstance(test["prompt"], dict)
+                        else test["prompt"]
+                    ),
                 },
             }
             for p in paraphrases

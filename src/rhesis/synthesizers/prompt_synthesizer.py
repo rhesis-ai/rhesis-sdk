@@ -8,7 +8,9 @@ from jinja2 import Template
 class PromptSynthesizer(TestSetSynthesizer):
     """A synthesizer that generates test cases based on a prompt using LLM."""
 
-    def __init__(self, prompt: str, batch_size: int = 5, system_prompt: Optional[str] = None):
+    def __init__(
+        self, prompt: str, batch_size: int = 5, system_prompt: Optional[str] = None
+    ):
         """
         Initialize the PromptSynthesizer.
 

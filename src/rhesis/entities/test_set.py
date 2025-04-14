@@ -332,7 +332,7 @@ class TestSet(BaseEntity):
         topics = set()
 
         # Extract unique categories and topics from tests
-        if self.tests:
+        if self.tests is not None:
             for test in self.tests:
                 if isinstance(test, dict):
                     if "category" in test and test["category"]:
@@ -346,17 +346,17 @@ class TestSet(BaseEntity):
             "short_description": self.short_description,
             "categories": sorted(list(categories)),
             "topics": sorted(list(topics)),
-            "test_count": len(self.tests) if self.tests else 0
+            "test_count": len(self.tests) if self.tests is not None else 0,
         }
 
     def set_attributes(self) -> None:
         """Set test set attributes using LLM based on categories and topics in tests.
-        
+
         This method:
         1. Gets the unique categories and topics from tests
         2. Uses the LLM service to generate appropriate name, description, and short description
         3. Updates the test set's attributes
-        
+
         Example:
             >>> test_set = TestSet(id='123')
             >>> test_set.set_attributes()
@@ -370,22 +370,27 @@ class TestSet(BaseEntity):
         # Get unique categories and topics
         categories = set()
         topics = set()
-        for test in self.tests:
-            if isinstance(test, dict):
-                if "category" in test and test["category"]:
-                    categories.add(test["category"])
-                if "topic" in test and test["topic"]:
-                    topics.add(test["topic"])
+        if self.tests is not None:
+            for test in self.tests:
+                if isinstance(test, dict):
+                    if "category" in test and test["category"]:
+                        categories.add(test["category"])
+                    if "topic" in test and test["topic"]:
+                        topics.add(test["topic"])
 
         # Load the prompt template
-        prompt_path = Path(__file__).parent.parent / "synthesizers" / "assets" / "test_set_attributes.md"
+        prompt_path = (
+            Path(__file__).parent.parent
+            / "synthesizers"
+            / "assets"
+            / "test_set_attributes.md"
+        )
         with open(prompt_path, "r") as f:
             template = Template(f.read())
 
         # Format the prompt
         formatted_prompt = template.render(
-            topics=sorted(list(topics)),
-            categories=sorted(list(categories))
+            topics=sorted(list(topics)), categories=sorted(list(categories))
         )
 
         # Create LLM service and get response
@@ -398,6 +403,6 @@ class TestSet(BaseEntity):
             self.short_description = response.get("short_description")
             self.categories = sorted(list(categories))
             self.topics = sorted(list(topics))
-            self.test_count = len(self.tests)
+            self.test_count = len(self.tests) if self.tests is not None else 0
         else:
             raise ValueError("LLM response was not in the expected format")
