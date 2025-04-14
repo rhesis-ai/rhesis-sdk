@@ -1,7 +1,7 @@
-# Rhesis SDK
+# Rhesis SDK 🧠
 <meta name="google-site-verification" content="muyrLNdeOT9KjYaOnfpOmGi8K5xPe8o7r_ov3kEGdXA" />
 <p align="center">
-  <img src="https://cdn.prod.website-files.com/66f422128b6d0f3351ce41e3/66fd07dc0b6994070ec5b54b_Logo%20Rhesis%20Orange-p-500.png" alt="Rhesis Logo" width="300"/>
+  <img src="https://cdn.prod.website-files.com/66f422128b6d0f3351ce41e3/66fcfdf2e263aab9f4a19e52_Logo%20Rhesis%20Blue.png" alt="Rhesis Blue" width="300"/>
 </p>
 <p align="center">
   <a href="https://github.com/rhesis-ai/rhesis-sdk/blob/main/LICENSE">
@@ -31,7 +31,31 @@
 
 The Rhesis SDK enables developers to access curated test sets and generate dynamic ones for GenAI applications. It provides tools to tailor validations to your needs and integrate seamlessly to keep your Gen AI robust, reliable & compliant.
 
-## Features
+<img src="https://cdn.prod.website-files.com/66f422128b6d0f3351ce41e3/67ea61119543db5f3fa4776e_Screenshot%20Rhesis%20AI%20Platform.png" 
+     loading="lazy" 
+     width="1392" 
+     sizes="(max-width: 479px) 100vw, (max-width: 767px) 95vw, (max-width: 991px) 94vw, 95vw" 
+     alt="Dashboard mockup" 
+     srcset="https://cdn.prod.website-files.com/66f422128b6d0f3351ce41e3/67ea61119543db5f3fa4776e_Screenshot%20Rhesis%20AI%20Platform.png 2939w" 
+     class="uui-layout41_lightbox-image-01-2">
+
+## 📑 Table of Contents
+
+- [Features](#-features)
+- [Installation](#-installation)
+- [Getting Started](#-getting-started)
+  - [Obtain an API Key](#1-obtain-an-api-key-)
+  - [Configure the SDK](#2-configure-the-sdk-%EF%B8%8F)
+- [Quick Start](#-quick-start)
+  - [Working with Test Sets](#working-with-test-sets-)
+  - [Generating Custom Test Sets](#generating-custom-test-sets-%EF%B8%8F)
+- [About Rhesis AI](#-about-rhesis-ai)
+- [Community](#-community-)
+- [Hugging Face](#-hugging-face)
+- [Support](#-support)
+- [License](#-license)
+
+## ✨ Features
 
 The Rhesis SDK currently provides functionality to work with Rhesis test sets through routine operations:
 
@@ -40,7 +64,7 @@ The Rhesis SDK currently provides functionality to work with Rhesis test sets th
 - **Download Test Sets**: Download test set data for offline use
 - **Generate Test Sets**: Generate new test sets from basic prompts
 
-## Installation
+## 🚀 Installation
 
 Install the Rhesis SDK using pip:
 
@@ -48,9 +72,9 @@ Install the Rhesis SDK using pip:
 pip install rhesis-sdk
 ```
 
-## Getting Started
+## 🏁 Getting Started
 
-### 1. Obtain an API Key
+### 1. Obtain an API Key 🔑
 
 1. Visit [https://app.rhesis.ai](https://app.rhesis.ai)
 2. Sign up for a Rhesis account
@@ -61,7 +85,7 @@ Your API key will be in the format `rh-XXXXXXXXXXXXXXXXXXXX`. Keep this key secu
 
 > **Note:** On the Rhesis App, you can also create test sets for your own use cases and access them via the SDK. You only need to connect your GitHub account to create a test set.
 
-### 2. Configure the SDK
+### 2. Configure the SDK ⚙️
 
 You can configure the Rhesis SDK either through environment variables or direct configuration:
 
@@ -82,11 +106,11 @@ rhesis.base_url = "https://api.rhesis.ai"  # optional
 rhesis.api_key = "rh-XXXXXXXXXXXXXXXXXXXX"
 ```
 
-## Quick Start
+## ⚡ Quick Start
 
 Before you start, you can configure the Rhesis SDK either through environment variables or direct configuration, as described above.
 
-### Working with Test Sets
+### Working with Test Sets 📋
 
 ```python
 from rhesis.entities import TestSet
@@ -110,13 +134,13 @@ test_set = prompt_synthesizer.generate(num_tests=5)
 
 For more detailed examples, check out our [example notebooks](examples/).
 
-### Generating Custom Test Sets
+### Generating Custom Test Sets 🛠️
 
 If none of the existing test sets fit your needs, you can generate your own.
 
 You can check out [app.rhesis.ai](http://app.rhesis.ai). There you can define requirements, scenarios and personas, and even import your existing GitHub repository.
 
-## About Rhesis AI
+## 🧪 About Rhesis AI
 
 Rhesis AI helps organizations build Gen AI applications that deliver value, not surprises. Our platform enables you to:
 - Access curated test sets
@@ -129,21 +153,21 @@ Made in Potsdam, Germany 🇩🇪
 
 Visit [rhesis.ai](https://rhesis.ai) to learn more about our platform and services.
 
-## Community 💬
+## 👥 Community 💬
 
 Join our [Discord server](https://discord.rhesis.ai) to connect with other users and developers.
 
-## Hugging Face 🤗
+## 🤗 Hugging Face
 
 You can also find us on [Hugging Face](https://huggingface.co/rhesis). There, you can find our test sets across multiple use cases.
 
-## Support 🆘
+## 🆘 Support
 
 For questions, issues, or feature requests:
 - Visit our [documentation](https://docs.rhesis.ai)
-- Contact us at support@rhesis.ai
+- Contact us at hello@rhesis.ai
 - Create an issue in this repository
 
-## License 📝
+## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
