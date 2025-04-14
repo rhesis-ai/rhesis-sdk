@@ -1,5 +1,6 @@
 from typing import List, Dict, Any
 import requests
+import json
 from rhesis.client import Client
 
 
@@ -12,6 +13,26 @@ class LLMService:
             "Authorization": f"Bearer {self.client.api_key}",
             "Content-Type": "application/json",
         }
+
+    def run(self, prompt: str, response_format: str = "json", **kwargs: Any) -> Any:
+        """Run a chat completion using the API, and return the response."""
+        try:
+            response = self.create_completion(
+                messages=[{"role": "user", "content": prompt}],
+                response_format=response_format,
+                **kwargs,
+            )
+            if response_format == "json":
+                return json.loads(response["choices"][0]["message"]["content"])
+            return response["choices"][0]["message"]["content"]
+        
+        except (requests.exceptions.HTTPError, KeyError, IndexError) as e:
+            # Log the error and return an appropriate message
+            print(f"Error occurred while running the prompt: {e}")
+            if response_format == "json":
+                return {"error": "An error occurred while processing the request."}
+
+            return "An error occurred while processing the request."
 
     def create_completion(
         self,
