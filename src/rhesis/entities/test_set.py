@@ -349,7 +349,7 @@ class TestSet(BaseEntity):
             "test_count": len(self.tests) if self.tests is not None else 0,
         }
 
-    def set_attributes(self) -> None:
+    def set_properties(self) -> None:
         """Set test set attributes using LLM based on categories and topics in tests.
 
         This method:
@@ -359,7 +359,7 @@ class TestSet(BaseEntity):
 
         Example:
             >>> test_set = TestSet(id='123')
-            >>> test_set.set_attributes()
+            >>> test_set.set_properties()
             >>> print(f"Name: {test_set.name}")
             >>> print(f"Description: {test_set.description}")
         """
@@ -383,7 +383,7 @@ class TestSet(BaseEntity):
             Path(__file__).parent.parent
             / "synthesizers"
             / "assets"
-            / "test_set_attributes.md"
+            / "test_set_properties.md"
         )
         with open(prompt_path, "r") as f:
             template = Template(f.read())

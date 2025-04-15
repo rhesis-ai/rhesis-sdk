@@ -105,7 +105,7 @@ class PromptSynthesizer(TestSetSynthesizer):
             },
         )
 
-        # Set attributes based on the generated tests
-        test_set.set_attributes()
+        # Set properties based on the generated tests
+        test_set.set_properties()
 
         return test_set
