@@ -144,7 +144,8 @@ You can check out [app.rhesis.ai](http://app.rhesis.ai). There you can define re
 
 Rhesis AI helps organizations build Gen AI applications that deliver value, not surprises. Our platform enables you to:
 - Access curated test sets
-- Generate dynamic test sets
+- Generate custom test sets
+- Upload your custom test sets to the cloud
 - Tailor validations to your specific needs
 - Integrate testing seamlessly into your workflow
 - Keep your Gen AI applications robust, reliable & compliant

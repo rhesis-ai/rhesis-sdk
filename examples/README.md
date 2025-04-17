@@ -12,4 +12,4 @@ This directory contains Jupyter notebooks demonstrating how to use the Rhesis SD
 
 1. Install development dependencies:
    ```bash
-   pip install .[dev]
+   pip install rhesis-sdk[dev]

@@ -75,6 +75,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed synthesizer response parsing to handle new test structure
 - Fixed test set property extraction to work with nested test objects
 
+## [0.1.7] - 2025-04-17
+### Added
+- Added test set upload functionality
+
+### Changed
+- Improved synthesizers and LLM generation functionality
+
+### Fixed
+- Fixed method naming issues
+
 [0.1.0]: https://github.com/rhesis-ai/rhesis-sdk/releases/tag/v0.1.0
 [0.1.1]: https://github.com/rhesis-ai/rhesis-sdk/releases/tag/v0.1.1
 [0.1.2]: https://github.com/rhesis-ai/rhesis-sdk/releases/tag/v0.1.2
@@ -82,3 +92,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.1.4]: https://github.com/rhesis-ai/rhesis-sdk/releases/tag/v0.1.4
 [0.1.5]: https://github.com/rhesis-ai/rhesis-sdk/releases/tag/v0.1.5
 [0.1.6]: https://github.com/rhesis-ai/rhesis-sdk/releases/tag/v0.1.6
+[0.1.7]: https://github.com/rhesis-ai/rhesis-sdk/releases/tag/v0.1.7
