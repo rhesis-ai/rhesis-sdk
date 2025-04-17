@@ -1,10 +1,8 @@
 from typing import List, Dict, Any, Optional
-import uuid
 from pathlib import Path
 from jinja2 import Template
 from rhesis.synthesizers.base import TestSetSynthesizer
 from rhesis.entities.test_set import TestSet
-import json
 
 
 class PromptSynthesizer(TestSetSynthesizer):
@@ -23,7 +21,7 @@ class PromptSynthesizer(TestSetSynthesizer):
         """
         super().__init__(batch_size=batch_size)
         self.prompt = prompt
-        
+
         if system_prompt:
             self.system_prompt = Template(system_prompt)
         else:
@@ -40,19 +38,26 @@ class PromptSynthesizer(TestSetSynthesizer):
 
         # Use run() method with default parameters
         response = self.llm_service.run(prompt=formatted_prompt)
-        
+
         if not isinstance(response, dict) or "tests" not in response:
-            raise ValueError(f"Expected a dict with 'tests' key, got {type(response).__name__}")
-            
+            raise ValueError(
+                f"Expected a dict with 'tests' key, got {type(response).__name__}"
+            )
+
         test_cases = response["tests"]
         if not isinstance(test_cases, list):
-            raise ValueError(f"Expected 'tests' to be a list, got {type(test_cases).__name__}")
+            raise ValueError(
+                f"Expected 'tests' to be a list, got {type(test_cases).__name__}"
+            )
 
         # Ensure we get the requested number of test cases
         if len(test_cases) < num_tests:
             for attempt in range(2):  # Try up to 2 more times
                 additional_response = self.llm_service.run(prompt=formatted_prompt)
-                if not isinstance(additional_response, dict) or "tests" not in additional_response:
+                if (
+                    not isinstance(additional_response, dict)
+                    or "tests" not in additional_response
+                ):
                     continue
                 additional_cases = additional_response["tests"]
                 if not isinstance(additional_cases, list):

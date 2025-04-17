@@ -67,14 +67,14 @@ class BaseEntity:
     @property
     def id(self) -> Optional[str]:
         """Get the entity's ID.
-        
+
         Provides convenient access to the entity's ID without having to access
         the fields dictionary directly. This is the recommended way to get an
         entity's ID throughout the codebase.
-        
+
         Returns:
             Optional[str]: The entity's ID if it exists, otherwise None.
-        
+
         Example:
             >>> entity = BaseEntity(id="123")
             >>> print(entity.id)  # "123"

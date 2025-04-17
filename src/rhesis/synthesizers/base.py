@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, List, Dict
+from typing import Any, List
 from pathlib import Path
 from tqdm.auto import tqdm
 from jinja2 import Template

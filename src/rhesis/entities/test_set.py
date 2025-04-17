@@ -58,7 +58,7 @@ class TestSet(BaseEntity):
         self.short_description = fields.get("short_description", None)
         self.tests = fields.get("tests", None)
         self.metadata = fields.get("metadata", None)
-        
+
     @handle_http_errors
     def get_tests(self, **kwargs: Any) -> list[Any]:
         """Retrieve tests for the test set from the API.
@@ -172,8 +172,10 @@ class TestSet(BaseEntity):
             dict: The prepared test set data.
         """
         if not self.tests:
-            raise ValueError("No tests to upload. Please add tests to the test set first.")
-            
+            raise ValueError(
+                "No tests to upload. Please add tests to the test set first."
+            )
+
         return {
             "name": self.name,
             "description": self.description,
@@ -181,7 +183,7 @@ class TestSet(BaseEntity):
             "metadata": self.metadata,
             "tests": self.tests,
         }
-    
+
     def _update_from_response(self, response_data: dict) -> None:
         """Update instance fields from API response.
 
@@ -190,7 +192,7 @@ class TestSet(BaseEntity):
         """
         # Update general fields
         self.fields.update(response_data)
-        
+
         # Update specific fields
         if "id" in response_data:
             self.fields["id"] = response_data["id"]
@@ -200,14 +202,16 @@ class TestSet(BaseEntity):
             self.description = response_data["description"]
         if "short_description" in response_data:
             self.short_description = response_data["short_description"]
-            
+
         # Handle metadata merging - ensure we merge rather than replace
         if "metadata" in response_data and response_data["metadata"]:
             if self.metadata is None:
                 self.metadata = response_data["metadata"]
             else:
                 # Merge metadata dictionaries, giving preference to new values in case of conflicts
-                if isinstance(self.metadata, dict) and isinstance(response_data["metadata"], dict):
+                if isinstance(self.metadata, dict) and isinstance(
+                    response_data["metadata"], dict
+                ):
                     self.metadata.update(response_data["metadata"])
                 else:
                     # If either is not a dict, just use the response value
@@ -233,16 +237,20 @@ class TestSet(BaseEntity):
                 "Cannot upload test set: test set already has an ID. "
                 "This test set already exists in the database."
             )
-        
+
         # Prepare test set data
         test_set = self._prepare_test_set_data()
+        if self.tests is None:
+            raise ValueError("Tests cannot be None")
         test_count = len(self.tests)
-        
+
         try:
             # Show progress indicator during the request
-            with tqdm.tqdm(total=100, desc=f"Uploading test set with {test_count} tests", unit="%") as pbar:
+            with tqdm.tqdm(
+                total=100, desc=f"Uploading test set with {test_count} tests", unit="%"
+            ) as pbar:
                 pbar.update(10)  # Start with 10% for initialization
-                
+
                 # Send request
                 response = requests.post(
                     self.client.get_url("test_sets/bulk"),
@@ -250,26 +258,26 @@ class TestSet(BaseEntity):
                     headers=self.headers,
                 )
                 pbar.update(40)  # 50% after sending
-                
+
                 # Process response
                 response.raise_for_status()
                 pbar.update(40)  # 90% after receiving response
-                
+
                 # Update from response
                 self._update_from_response(response.json())
                 pbar.update(10)  # 100% complete
-            
+
             # Print success message
             print(f"☑️ Successfully uploaded test set with ID: {self.id}")
             print(f" - Name: {self.name}")
             print(f" - Tests: {test_count}")
-            
+
         except requests.exceptions.HTTPError as e:
             error_msg = f"Error uploading test set: {str(e)}"
             if e.response is not None:
                 try:
                     error_data = e.response.json()
-                    if 'message' in error_data:
+                    if "message" in error_data:
                         error_msg = f"Error: {error_data['message']}"
                 except ValueError:
                     pass
