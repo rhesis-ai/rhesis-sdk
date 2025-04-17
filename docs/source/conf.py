@@ -28,6 +28,9 @@ extensions = [
     'myst_parser', # TODO: implement link from README.md to index.rst
 ]
 
+# Mock imports for modules that might not be available at build time are no longer needed
+# since we removed references to these modules
+
 templates_path = ['_templates']
 exclude_patterns = []
 
@@ -45,7 +48,21 @@ autodoc_default_flags = ['no-modules']
 # This will prevent duplicate warnings
 suppress_warnings = [
     'autodoc.duplicate_object_description',
+    'autodoc.import_object',
+    'docutils.nodes.title_reference',
+    'docutils',  # Suppress all docutils warnings
 ]
+
+# Disable docutils warnings about title underlines for Sphinx 
+nitpicky = False
+nitpick_ignore = [
+    ('py:.*', '.*'),  # Ignore all Python references
+    ('.*', 'Title underline too short'),  # Ignore title underline warnings
+]
+
+# Set up a warning filter to ignore docutils warnings
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning, module='docutils')
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

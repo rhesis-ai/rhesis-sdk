@@ -4,19 +4,19 @@
    contain the root `toctree` directive.
 
 Welcome to Rhesis SDK's Documentation
-===================================
+=====================================
 
 .. image:: https://cdn.prod.website-files.com/66f422128b6d0f3351ce41e3/66fd07dc0b6994070ec5b54b_Logo%20Rhesis%20Orange-p-500.png
    :alt: Rhesis Logo
    :width: 300
    :align: center
 
-    *Gen AI applications that deliver value, not surprises.*
+*Gen AI applications that deliver value, not surprises.*
 
 The Rhesis SDK enables developers to access curated test sets and generate dynamic ones for GenAI applications. It provides tools to tailor validations to your needs and integrate seamlessly to keep your Gen AI robust, reliable & compliant.
 
 Installation
------------
+===========
 
 Install the Rhesis SDK using pip:
 
@@ -25,10 +25,10 @@ Install the Rhesis SDK using pip:
    pip install rhesis-sdk
 
 Getting Started
--------------
+==============
 
 1. Obtain an API Key
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 1. Visit `Rhesis App <https://app.rhesis.ai>`_
 2. Sign up for a Rhesis account
@@ -43,7 +43,7 @@ Your API key will be in the format ``rh-XXXXXXXXXXXXXXXXXXXX``. Keep this key se
 You can configure the Rhesis SDK either through environment variables or direct configuration:
 
 Using Environment Variables
-^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
@@ -51,7 +51,7 @@ Using Environment Variables
    export RHESIS_BASE_URL="https://api.rhesis.ai"  # optional
 
 Direct Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
@@ -61,7 +61,7 @@ Direct Configuration
    rhesis.base_url = "https://api.rhesis.ai"  # optional
 
 Documentation Contents
--------------------
+=====================
 
 .. toctree::
    :maxdepth: 2
@@ -86,7 +86,7 @@ Documentation Contents
    changelog
 
 Indices and Tables
-----------------
+=================
 
 * :ref:`genindex`
 * :ref:`modindex`
