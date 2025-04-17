@@ -64,6 +64,25 @@ class BaseEntity:
             "Content-Type": "application/json",
         }
 
+    @property
+    def id(self) -> Optional[str]:
+        """Get the entity's ID.
+        
+        Provides convenient access to the entity's ID without having to access
+        the fields dictionary directly. This is the recommended way to get an
+        entity's ID throughout the codebase.
+        
+        Returns:
+            Optional[str]: The entity's ID if it exists, otherwise None.
+        
+        Example:
+            >>> entity = BaseEntity(id="123")
+            >>> print(entity.id)  # "123"
+            >>> entity = BaseEntity()
+            >>> print(entity.id)  # None
+        """
+        return self.fields.get("id")
+
     @handle_http_errors
     def save(self) -> Optional[Dict[str, Any]]:
         """Save the entity to the database."""
