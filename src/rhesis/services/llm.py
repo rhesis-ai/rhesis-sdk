@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import requests
 import json
 from rhesis.client import Client
@@ -33,7 +33,7 @@ class LLMService:
         except (requests.exceptions.HTTPError, KeyError, IndexError) as e:
             # Log the error and return an appropriate message
             print(f"Error occurred while running the prompt: {e}")
-            if response_format == "json":
+            if response_format == "json_object":
                 return {"error": "An error occurred while processing the request."}
 
             return "An error occurred while processing the request."
@@ -43,6 +43,7 @@ class LLMService:
         messages: List[Dict[str, str]],
         temperature: float = 0.7,
         max_tokens: int = 2000,
+        response_format: Optional[str] = None,
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """
@@ -65,6 +66,7 @@ class LLMService:
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
+            "response_format": response_format,
             **kwargs,
         }
 

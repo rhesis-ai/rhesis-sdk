@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from typing import Any, List, Dict
-import json
 from pathlib import Path
 from tqdm.auto import tqdm
 from jinja2 import Template
@@ -32,62 +31,6 @@ class TestSetSynthesizer(ABC):
         prompt_path = Path(__file__).parent / "assets" / f"{snake_case}.md"
         with open(prompt_path, "r") as f:
             return Template(f.read())
-
-    def _parse_json_response(self, content: str) -> List[Dict[str, Any]]:
-        """Parse the LLM JSON response into a list of dictionaries."""
-        try:
-            parsed = json.loads(content)
-
-            # Handle response wrapped in a field
-            if isinstance(parsed, dict) and len(parsed) == 1:
-                possible_list = list(parsed.values())[0]
-                if isinstance(possible_list, list):
-                    return possible_list
-
-            # Handle direct list response
-            if isinstance(parsed, list):
-                # Convert old format to new format if needed
-                return [
-                    {
-                        "prompt": {
-                            "content": (
-                                item["prompt"]["content"]
-                                if isinstance(item.get("prompt"), dict)
-                                else item.get("prompt", "")
-                            ),
-                            "language_code": "en",
-                        },
-                        "behavior": item.get("behavior", ""),
-                        "category": item.get("category", ""),
-                        "topic": item.get("topic", ""),
-                    }
-                    for item in parsed
-                ]
-
-            # Handle single item response
-            if isinstance(parsed, dict):
-                return [parsed]
-
-            raise ValueError("Unexpected response structure")
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Failed to parse JSON response: {str(e)}")
-
-    def _create_llm_completion(
-        self,
-        messages: List[Dict[str, str]],
-        temperature: float = 0.8,
-        max_tokens: int = 4000,
-        top_p: float = 0.95,
-    ) -> str:
-        """Create an LLM completion and return the content."""
-        response: Dict[str, Any] = self.llm_service.create_completion(
-            messages=messages,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            top_p=top_p,
-        )
-        # Ensure we're returning a string
-        return str(response["choices"][0]["message"]["content"])
 
     def _process_with_progress(
         self,

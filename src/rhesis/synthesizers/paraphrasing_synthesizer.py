@@ -4,6 +4,7 @@ from rhesis.synthesizers.base import TestSetSynthesizer
 from rhesis.entities.test_set import TestSet
 import uuid
 from jinja2 import Template
+from pathlib import Path
 
 
 class ParaphrasingSynthesizer(TestSetSynthesizer):
@@ -26,20 +27,65 @@ class ParaphrasingSynthesizer(TestSetSynthesizer):
         super().__init__(batch_size=batch_size)
         self.test_set = test_set
         self.num_paraphrases: int = 2  # Default value, can be overridden in generate()
+        
         if system_prompt:
             self.system_prompt = Template(system_prompt)
+        else:
+            # Load default system prompt from assets
+            prompt_path = Path(__file__).parent / "assets" / "paraphrasing_synthesizer.md"
+            with open(prompt_path, "r") as f:
+                self.system_prompt = Template(f.read())
 
-    def _parse_paraphrases(self, content: str) -> List[Dict[str, Any]]:
-        """Parse the LLM response content into a list of paraphrased versions."""
-        parsed = json.loads(content)
-
-        if isinstance(parsed, list):
-            return [
-                {"prompt": {"content": p.get("content", ""), "language_code": "en"}}
-                for p in parsed
-            ]
-
-        raise ValueError(f"Unexpected response format: {content}")
+    def _parse_paraphrases(self, content: Any) -> List[Dict[str, Any]]:
+        """
+        Parse the LLM response content into a list of paraphrased versions.
+        
+        Args:
+            content: Python object from LLM containing paraphrased prompts
+            
+        Returns:
+            List of dictionaries with formatted prompt structure
+            
+        Raises:
+            ValueError: If the response is not in the expected format (object with tests array)
+        """
+        if not isinstance(content, dict):
+            raise ValueError(f"Expected a dict, got {type(content).__name__}")
+            
+        if "tests" not in content:
+            raise ValueError("Response missing 'tests' key")
+            
+        tests = content["tests"]
+        if not isinstance(tests, list):
+            raise ValueError(f"Expected 'tests' to be a list, got {type(tests).__name__}")
+            
+        paraphrases = []
+        for i, item in enumerate(tests):
+            if not isinstance(item, dict):
+                raise ValueError(f"Item {i} is not an object: {item}")
+                
+            if "prompt" not in item:
+                raise ValueError(f"Item {i} missing 'prompt' field: {item}")
+                
+            prompt = item["prompt"]
+            if not isinstance(prompt, dict):
+                raise ValueError(f"Item {i} 'prompt' is not an object: {prompt}")
+                
+            if "content" not in prompt:
+                raise ValueError(f"Item {i} missing 'prompt.content' field: {prompt}")
+                
+            if not isinstance(prompt["content"], str):
+                raise ValueError(f"Item {i} 'prompt.content' is not a string: {prompt['content']}")
+                
+            # Add the paraphrase with required structure
+            paraphrases.append({
+                "prompt": {
+                    "content": prompt["content"],
+                    "language_code": "en"
+                }
+            })
+            
+        return paraphrases
 
     def _generate_paraphrases(self, test: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
@@ -51,29 +97,32 @@ class ParaphrasingSynthesizer(TestSetSynthesizer):
         Returns:
             List[Dict[str, Any]]: List of paraphrased versions, exactly num_paraphrases in length
         """
+        # Extract the prompt content, handling different possible test structures
+        original_prompt = ""
+        if isinstance(test.get("prompt"), dict):
+            original_prompt = test["prompt"].get("content", "")
+        elif isinstance(test.get("prompt"), str):
+            original_prompt = test["prompt"]
+        else:
+            original_prompt = str(test.get("prompt", ""))
+            
+        # Format the system prompt
         formatted_prompt = self.system_prompt.render(
-            original_prompt=test["prompt"]["content"],
+            original_prompt=original_prompt,
             num_paraphrases=self.num_paraphrases,
         )
 
-        messages = [
-            {"role": "system", "content": formatted_prompt},
-            {"role": "user", "content": "Generate the paraphrased versions now."},
-        ]
+        # Use run() method with default parameters
+        content = self.llm_service.run(prompt=formatted_prompt)
 
-        content = self._create_llm_completion(
-            messages, temperature=0.8, max_tokens=4000, top_p=0.95
-        )
-
-        paraphrases = self._parse_json_response(content)
+        # Parse and validate the response
+        paraphrases = self._parse_paraphrases(content)
 
         # Ensure we get exactly num_paraphrases results
         if len(paraphrases) < self.num_paraphrases:
             for attempt in range(2):
-                additional_content = self._create_llm_completion(
-                    messages, temperature=0.9, max_tokens=4000, top_p=0.95
-                )
-                additional_paraphrases = self._parse_json_response(additional_content)
+                additional_content = self.llm_service.run(prompt=formatted_prompt)
+                additional_paraphrases = self._parse_paraphrases(additional_content)
                 paraphrases.extend(additional_paraphrases)
 
                 if len(paraphrases) >= self.num_paraphrases:
@@ -87,28 +136,21 @@ class ParaphrasingSynthesizer(TestSetSynthesizer):
         # Take exactly num_paraphrases results
         paraphrases = paraphrases[: self.num_paraphrases]
 
+        # Create paraphrased test objects with all the necessary metadata
         return [
             {
                 "prompt": {
-                    "content": (
-                        p["prompt"]["content"]
-                        if isinstance(p["prompt"], dict)
-                        else p["content"]
-                    ),
+                    "content": p["prompt"]["content"],
                     "language_code": "en",
                 },
-                "behavior": test["behavior"],
-                "category": test["category"],
-                "topic": test["topic"],
+                "behavior": test.get("behavior", ""),
+                "category": test.get("category", ""),
+                "topic": test.get("topic", ""),
                 "metadata": {
                     "generated_by": "ParaphrasingSynthesizer",
                     "original_test_id": test.get("id", "unknown"),
                     "is_paraphrase": True,
-                    "original_content": (
-                        test["prompt"]["content"]
-                        if isinstance(test["prompt"], dict)
-                        else test["prompt"]
-                    ),
+                    "original_content": original_prompt,
                 },
             }
             for p in paraphrases
@@ -144,7 +186,6 @@ class ParaphrasingSynthesizer(TestSetSynthesizer):
         )
 
         test_set = TestSet(
-            id=str(uuid.uuid4()),
             tests=all_tests,
             metadata={
                 "original_test_set_id": self.test_set.fields.get("id", "unknown"),
@@ -157,6 +198,5 @@ class ParaphrasingSynthesizer(TestSetSynthesizer):
         )
 
         # Set attributes based on the generated tests
-        test_set.set_attributes()
-
+        test_set.set_properties()
         return test_set

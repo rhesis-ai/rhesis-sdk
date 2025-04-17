@@ -1,8 +1,10 @@
 from typing import List, Dict, Any, Optional
 import uuid
+from pathlib import Path
+from jinja2 import Template
 from rhesis.synthesizers.base import TestSetSynthesizer
 from rhesis.entities.test_set import TestSet
-from jinja2 import Template
+import json
 
 
 class PromptSynthesizer(TestSetSynthesizer):
@@ -21,8 +23,14 @@ class PromptSynthesizer(TestSetSynthesizer):
         """
         super().__init__(batch_size=batch_size)
         self.prompt = prompt
+        
         if system_prompt:
             self.system_prompt = Template(system_prompt)
+        else:
+            # Load default system prompt from assets
+            prompt_path = Path(__file__).parent / "assets" / "prompt_synthesizer.md"
+            with open(prompt_path, "r") as f:
+                self.system_prompt = Template(f.read())
 
     def _generate_batch(self, num_tests: int) -> List[Dict[str, Any]]:
         """Generate a batch of test cases."""
@@ -30,24 +38,25 @@ class PromptSynthesizer(TestSetSynthesizer):
             generation_prompt=self.prompt, num_tests=num_tests
         )
 
-        messages = [
-            {"role": "system", "content": formatted_prompt},
-            {"role": "user", "content": "Generate the test cases now."},
-        ]
-
-        content = self._create_llm_completion(messages)
-        test_cases = self._parse_json_response(content)
+        # Use run() method with default parameters
+        response = self.llm_service.run(prompt=formatted_prompt)
+        
+        if not isinstance(response, dict) or "tests" not in response:
+            raise ValueError(f"Expected a dict with 'tests' key, got {type(response).__name__}")
+            
+        test_cases = response["tests"]
+        if not isinstance(test_cases, list):
+            raise ValueError(f"Expected 'tests' to be a list, got {type(test_cases).__name__}")
 
         # Ensure we get the requested number of test cases
         if len(test_cases) < num_tests:
             for attempt in range(2):  # Try up to 2 more times
-                additional_content = self._create_llm_completion(
-                    messages,
-                    temperature=0.9,  # Increase temperature slightly for variety
-                    max_tokens=4000,
-                    top_p=0.95,
-                )
-                additional_cases = self._parse_json_response(additional_content)
+                additional_response = self.llm_service.run(prompt=formatted_prompt)
+                if not isinstance(additional_response, dict) or "tests" not in additional_response:
+                    continue
+                additional_cases = additional_response["tests"]
+                if not isinstance(additional_cases, list):
+                    continue
                 test_cases.extend(additional_cases)
 
                 if len(test_cases) >= num_tests:
@@ -61,12 +70,10 @@ class PromptSynthesizer(TestSetSynthesizer):
         # Take exactly num_tests results
         test_cases = test_cases[:num_tests]
 
+        # Add metadata to each test case
         return [
             {
-                "prompt": test["prompt"],
-                "behavior": test["behavior"],
-                "category": test["category"],
-                "topic": test["topic"],
+                **test,
                 "metadata": {
                     "generated_by": "PromptSynthesizer",
                 },
@@ -95,7 +102,6 @@ class PromptSynthesizer(TestSetSynthesizer):
         all_test_cases = self._generate_batch(num_tests)
 
         test_set = TestSet(
-            id=str(uuid.uuid4()),
             tests=all_test_cases,
             metadata={
                 "generation_prompt": self.prompt,

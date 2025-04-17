@@ -18,19 +18,30 @@ You are an **LLM paraphrasing expert** tasked with generating diverse paraphrase
 ### Generate EXACTLY {{ num_paraphrases }} paraphrased versions for this prompt:
 {{ original_prompt }}
 
-YOU MUST return a JSON array containing EXACTLY {{ num_paraphrases }} paraphrased versions, formatted like this:
-[
-  {
-    "prompt": {
-      "content": "Your paraphrased version of the prompt goes here",
-      "language_code": "en"
-    }
-  }
-]
+CRITICAL: YOU MUST return a JSON object with a "tests" key containing EXACTLY {{ num_paraphrases }} paraphrased versions.
+DO NOT return an array directly - it MUST be wrapped in an object with a "tests" key.
 
-Remember:
-1. Return EXACTLY {{ num_paraphrases }} paraphrased versions
-2. Format as a JSON array with square brackets []
-3. Maintain the original intent and characteristics
-4. Each paraphrase must be a prompt object with content and language_code
-5. Only return the paraphrased content - other attributes will be copied from the original
+Format your response EXACTLY like this:
+{
+  "tests": [
+    {
+      "prompt": {
+        "content": "First paraphrased version goes here",
+        "language_code": "en"
+      }
+    },
+    {
+      "prompt": {
+        "content": "Second paraphrased version goes here",
+        "language_code": "en"
+      }
+    }
+  ]
+}
+
+REQUIREMENTS:
+1. Response MUST be a JSON object with a "tests" key
+2. The "tests" key MUST contain EXACTLY {{ num_paraphrases }} objects
+3. Each object MUST have the exact structure shown above
+4. DO NOT include any explanations or other text - only the JSON object
+5. DO NOT return a bare array - wrap it in an object with "tests" key
