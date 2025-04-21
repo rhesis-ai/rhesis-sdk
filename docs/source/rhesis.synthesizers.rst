@@ -10,6 +10,7 @@ Base Synthesizer
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: Any, Path, Template, TestSet
 
 Paraphrasing Synthesizer
 -----------------------
@@ -18,6 +19,7 @@ Paraphrasing Synthesizer
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: Any, Path, Template, TestSet
 
 Prompt Synthesizer
 ----------------
@@ -25,4 +27,5 @@ Prompt Synthesizer
 .. automodule:: rhesis.synthesizers.prompt_synthesizer
    :members:
    :undoc-members:
-   :show-inheritance: 
+   :show-inheritance:
+   :exclude-members: Any, Path, Template, TestSet 

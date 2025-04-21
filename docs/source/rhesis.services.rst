@@ -9,4 +9,5 @@ LLM Service
 .. automodule:: rhesis.services.llm
    :members:
    :undoc-members:
-   :show-inheritance: 
+   :show-inheritance:
+   :exclude-members: Any, Path, Template, TestSet 

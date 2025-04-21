@@ -85,6 +85,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed method naming issues
 
+## [0.1.8] - 2025-04-21
+### Added
+- Better documentation structure within Sphinx
+
+### Changed
+- Versioning in documentation is linked to source files in the code base
+
+### Fixed
+- Documentation build issues that were generating warnings in Sphinx
+
+
 [0.1.0]: https://github.com/rhesis-ai/rhesis-sdk/releases/tag/v0.1.0
 [0.1.1]: https://github.com/rhesis-ai/rhesis-sdk/releases/tag/v0.1.1
 [0.1.2]: https://github.com/rhesis-ai/rhesis-sdk/releases/tag/v0.1.2

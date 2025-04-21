@@ -3,66 +3,80 @@ Rhesis Entities
 
 This module contains the entity classes used throughout the Rhesis SDK.
 
-Base Entity
-----------
+.. automodule:: rhesis.entities
+   :members:
+   :imported-members:
+   :undoc-members:
+   :show-inheritance:
+   :noindex:
 
-.. automodule:: rhesis.entities.base_entity
+Entity Classes
+-------------
+
+.. py:currentmodule:: rhesis.client
+
+.. py:class:: Client
+   :noindex:
+
+   Client class for API operations.
+
+.. py:currentmodule:: rhesis.entities
+
+BaseEntity
+~~~~~~~~~~
+
+.. autoclass:: rhesis.entities.BaseEntity
    :members:
    :undoc-members:
    :show-inheritance:
-
-Behavior
---------
-
-.. automodule:: rhesis.entities.behavior
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Category
---------
-
-.. automodule:: rhesis.entities.category
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Prompt
-------
-
-.. automodule:: rhesis.entities.prompt
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :special-members: __init__
 
 Status
-------
+~~~~~~
 
-.. automodule:: rhesis.entities.status
+.. autoclass:: rhesis.entities.Status
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
+   :noindex:
 
-Test
-----
+Behavior
+~~~~~~~~
 
-.. automodule:: rhesis.entities.test
+.. autoclass:: rhesis.entities.Behavior
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
+   :noindex:
 
-Test Set
---------
+TestSet
+~~~~~~~
 
-.. automodule:: rhesis.entities.test_set
+.. autoclass:: rhesis.entities.TestSet
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
+   :noindex:
 
 Topic
------
+~~~~~
 
-.. automodule:: rhesis.entities.topic
+.. autoclass:: rhesis.entities.Topic
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
+   :noindex:
+
+Category
+~~~~~~~~
+
+.. autoclass:: rhesis.entities.Category
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :special-members: __init__
+   :noindex:

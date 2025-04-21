@@ -76,7 +76,6 @@ Documentation Contents
    :caption: API Reference
 
    rhesis
-   rhesis.entities
 
 .. toctree::
    :maxdepth: 1
