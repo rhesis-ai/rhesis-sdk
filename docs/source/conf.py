@@ -101,8 +101,11 @@ def convert_changelog():
     main_content += ".. toctree::\n"
     main_content += "   :maxdepth: 1\n\n"
     
-    # Add version files to toctree in reverse order (newest first)
-    for version, _ in reversed(version_blocks):
+    # Sort versions using semantic versioning principles (newer versions first)
+    sorted_versions = sorted(version_blocks, key=lambda x: list(map(int, x[0].split('.'))), reverse=True)
+    
+    # Add version files to toctree in sorted order (newest first)
+    for version, _ in sorted_versions:
         main_content += f"   changelog/v{version}\n"
     
     with open(changelog_rst_path, 'w') as f:

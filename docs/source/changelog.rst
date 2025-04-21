@@ -7,6 +7,7 @@ All notable changes to the Rhesis SDK.
    :maxdepth: 1
 
    changelog/v0.1.8
+   changelog/v0.1.7
    changelog/v0.1.6
    changelog/v0.1.5
    changelog/v0.1.4
@@ -14,4 +15,3 @@ All notable changes to the Rhesis SDK.
    changelog/v0.1.2
    changelog/v0.1.1
    changelog/v0.1.0
-   changelog/v0.1.7
