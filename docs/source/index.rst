@@ -6,7 +6,7 @@
 Welcome to Rhesis SDK's Documentation
 =====================================
 
-.. image:: https://cdn.prod.website-files.com/66f422128b6d0f3351ce41e3/66fd07dc0b6994070ec5b54b_Logo%20Rhesis%20Orange-p-500.png
+.. image:: https://cdn.prod.website-files.com/66f422128b6d0f3351ce41e3/66fcfdf2e263aab9f4a19e52_Logo%20Rhesis%20Blue.png
    :alt: Rhesis Logo
    :width: 300
    :align: center
