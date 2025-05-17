@@ -27,6 +27,8 @@
   </a>
 </p>
 
+> ⚠️ **Notice**: This repository has been moved to the main Rhesis repository at [github.com/rhesis-ai/rhesis](https://github.com/rhesis-ai/rhesis)
+
 > Gen AI applications that deliver value, not surprises.
 
 The Rhesis SDK enables developers to access curated test sets and generate dynamic ones for GenAI applications. It provides tools to tailor validations to your needs and integrate seamlessly to keep your Gen AI robust, reliable & compliant.
