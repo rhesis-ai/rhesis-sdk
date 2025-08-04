@@ -2,7 +2,7 @@
 
 This repository is no longer maintained.
 
-Please use the new repository: [rhesis-ai](https://github.com/rhesis-ai/rhesis)
+Please use the new repository: [github.com/rhesis-ai/rhesis](https://github.com/rhesis-ai/rhesis)
 
 # Rhesis SDK 🧠
 <meta name="google-site-verification" content="muyrLNdeOT9KjYaOnfpOmGi8K5xPe8o7r_ov3kEGdXA" />
@@ -32,8 +32,6 @@ Please use the new repository: [rhesis-ai](https://github.com/rhesis-ai/rhesis)
     <img src="https://img.shields.io/badge/docs-rhesis.ai-blue" alt="Documentation">
   </a>
 </p>
-
-> ⚠️ **Notice**: This repository has been moved to the main Rhesis repository at [github.com/rhesis-ai/rhesis](https://github.com/rhesis-ai/rhesis)
 
 > Gen AI applications that deliver value, not surprises.
 
