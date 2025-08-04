@@ -1,3 +1,9 @@
+# ⚠️ DEPRECATED
+
+This repository is no longer maintained.
+
+Please use the new repository: [rhesis-ai](https://github.com/rhesis-ai/rhesis)
+
 # Rhesis SDK 🧠
 <meta name="google-site-verification" content="muyrLNdeOT9KjYaOnfpOmGi8K5xPe8o7r_ov3kEGdXA" />
 <p align="center">
